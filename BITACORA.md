@@ -134,3 +134,76 @@ Costo: **US$ 6,7** (24 textos: 8 originales, 8 del 4B sin entrenar, 8 del 4B uni
 - Aprendizaje: parecer humano ante un lector y ante un detector son cosas distintas. El detector capta patrones estadísticos (por ejemplo, la elección de palabras) que el fine-tuning de una época no cambia, aunque cambie la forma visible del texto.
 
 **Política de uso decidida por Juan Pablo:** por el costo, Pangram se ejecuta solo en momentos importantes, no después de cada generación. Los originales ya están guardados en caché y no se vuelven a cobrar. Cada nueva versión de 8 textos cuesta ~US$ 2,2.
+
+## 2026-11-21: Línea base fase 2: Qwen3-4B sin entrenar + ficha
+
+Script: `2_linea_base.sh 4b fichas` → `resultados/4b-fichas-base/`
+
+| Métrica (promedio) | Original | 4B sin entrenar + ficha |
+|---|---|---|
+| Palabras | 606 | 471 |
+| Palabras por oración | 22,4 | 20,7 |
+| Párrafos | 10,4 | 11,6 |
+| Cursivas/negritas | 9,4 | 19 |
+| Vocabulario típico (por 1000) | 118 | 100 |
+
+**Observaciones:**
+- **Los hechos ahora son correctos:** TOEM aparece como juego de 2021 del estudio sueco Something We Made. La ficha cumple su función.
+- **Copia frases de la ficha casi textuales** ("cuatro puercoespines en un parque, niños escondidos", la lista de herramientas de la cámara). Se lee como una ficha en prosa.
+- **Malinterpreta algunos datos:** dice que el jugador *es* el funcionario de turismo, y que en Sable uno se une "a otros jugadores".
+- Convierte notas en primera persona en anécdotas ajenas ("un pescador loco convenció al jugador…").
+- **El estilo genérico persiste:** subtítulos "###" en 3 de 8 textos, el doble de negritas y cursivas, y un "Verdicto" final en negrita. Tampoco usa la apertura "Bienvenidos…".
+- Sin bucles de repetición ni palabras en otros idiomas en estos 8 textos.
+
+**Lectura:** la ficha resuelve los datos, pero no el estilo. El entrenamiento debería aportar el estilo y enseñar a reescribir la ficha con voz propia en lugar de copiarla.
+
+## 2026-11-21: Entrenamiento 2, 4B fichas-uniforme (70 iteraciones)
+
+| Iteración | Val loss | Train loss |
+|---|---|---|
+| 1 | 2,403 | – |
+| 15 | 1,825 | 1,998 (iter 10) |
+| 30 | 1,774 | 1,795 |
+| 45 | 1,740 | 1,690 (iter 40) |
+| **60** | **1,729** | 1,674 |
+| 70 | 1,856 | 1,258 |
+
+- La velocidad bajó a ~70–77 tokens/s, porque los ejemplos son más largos con la ficha. Duró ~35 minutos, sin suspensión gracias a `caffeinate`.
+- El Val loss parte más bajo que en la fase 1 (2,40 contra 2,69) porque la ficha ya entrega el contenido. No es comparable entre fases.
+- **El patrón se repitió:** el mejor punto fue el **fin de la primera época (iteración 60)**. Al entrar en la segunda época (iteración 70), el Train loss cayó a 1,26 y el Val loss subió a 1,86: memorización inmediata.
+- **Adaptador elegido:** iteración 60. El final (iteración 70) quedó guardado como `final_iter70_adapters.safetensors`.
+- **Incidente:** la primera generación se lanzó con el adaptador de la iteración 70. Se detuvo y se volvió a generar con el de la 60.
+- **Aprendizaje:** con este dataset, el óptimo está casi exactamente en una época. Para los próximos entrenamientos conviene fijar 60 iteraciones, o mantener 70 y elegir siempre el mejor punto guardado.
+
+## 2026-11-21: Generación 4B fichas-uniforme (adaptador de la iteración 60)
+
+| Métrica (promedio) | Original | Sin entrenar + ficha | Uniforme + ficha |
+|---|---|---|---|
+| Palabras | 606 | 471 | **246** |
+| Palabras por oración | 22,4 | 20,7 | 17,7 |
+| Párrafos | 10,4 | 11,6 | 5,8 |
+| Cursivas/negritas | 9,4 | 19 | 1,5 |
+| Vocabulario típico (por 1000) | 118 | 100 | 136 |
+
+(La "riqueza de vocabulario" sube a 64,9%, pero es un efecto de que los textos son más cortos, no una mejora real.)
+
+**Lo que mejoró:**
+- Desaparecieron los subtítulos, las negritas y el "Verdicto". Usa prosa continua y un cierre al estilo de Juan Pablo ("Una pequeña joya, completamente recomendado…").
+- Los hechos básicos son correctos (año, estudio, premisa).
+- Sin bucles ni palabras en otros idiomas.
+
+**Lo que empeoró o falta:**
+- **Artículos de menos de la mitad del largo** (246 contra 606 palabras). El modelo aprendió a "pasar la ficha a prosa": recorre los puntos de la ficha y termina.
+- **Sigue copiando la ficha**, incluso con enumeraciones ("Aparecen los siguientes: zoom, efectos, marcos…") y frases textuales.
+- **Errores de comprensión:** confunde las medallas y la máscara de Sable con "un simulacro del vehículo", y cambia el género del protagonista de TOEM.
+- No usa la apertura "Bienvenidos…".
+
+**Lectura:** las fichas son demasiado completas y estructuradas. Como contienen casi todo el contenido, el modelo aprendió que el artículo es la ficha reescrita, y la riqueza de los originales (anécdotas, reflexiones, comparaciones, desarrollo de cada idea) no está en la ficha.
+
+## 2026-11-21: Preparación de la fase 2b (ficha + largo)
+
+- **Cambio único:** cada pedido incluye "Largo aproximado: N palabras" con el largo real del artículo, redondeado a 50. En la prueba se usa el largo del original (350 a 850 palabras). Las fichas no cambian.
+- **Objetivo:** que el modelo deje de terminar cuando se le acaba la ficha y desarrolle las ideas como en los originales.
+- Datos: `datos/fichas-largo-uniforme/`, `datos/fichas-largo-ponderado/`, `datos/prueba/prompts_fichas-largo.jsonl`.
+- **Configuración:** `iters` pasa de 70 a **60** (una época exacta), porque en los dos entrenamientos anteriores el mejor Val loss fue en la iteración 60. Así el adaptador final ya es el óptimo y no hay que reemplazarlo.
+- Los scripts 2 y 4 ahora aceptan cualquier fase (por ejemplo `bash 2_linea_base.sh 4b fichas-largo`).

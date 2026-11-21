@@ -31,7 +31,8 @@ def metricas(t):
 
 orig = {os.path.basename(f)[:-3]: f for f in glob.glob("datos/prueba/originales/*.md")}
 pedidos = [json.loads(l) for l in open("datos/prueba/prompts_fichas.jsonl" if FICHAS else "datos/prueba/prompts.jsonl")]
-ORDEN = {"base": 0, "uniforme": 1, "ponderado": 2, "fichas-base": 0, "fichas-uniforme": 1, "fichas-ponderado": 2}
+ORDEN = {"base": 0, "uniforme": 1, "ponderado": 2, "fichas-base": 0, "fichas-uniforme": 1, "fichas-ponderado": 2,
+         "fichas-largo-base": 3, "fichas-largo-uniforme": 4, "fichas-largo-ponderado": 5}
 encontradas = [d for d in os.listdir("resultados") if glob.glob(f"resultados/{d}/*.md") and (("fichas" in d) == FICHAS)] if os.path.isdir("resultados") else []
 variantes = ["original"] + sorted(encontradas, key=lambda d: (d.split("-")[0], ORDEN.get(d.split("-", 1)[-1], 9)))
 textos = {v: {} for v in variantes}
@@ -57,7 +58,8 @@ for v in variantes:
 
 E = html.escape
 filas = "".join(f"<tr><td>{E(k)}</td>" + "".join(f"<td>{prom[v].get(k,'–')}</td>" for v in variantes) + "</tr>" for k in prom["original"])
-ETIQ = {"base": "sin entrenar", "uniforme": "uniforme", "ponderado": "ponderado", "fichas-base": "sin entrenar + ficha", "fichas-uniforme": "uniforme + ficha", "fichas-ponderado": "ponderado + ficha"}
+ETIQ = {"base": "sin entrenar", "uniforme": "uniforme", "ponderado": "ponderado", "fichas-base": "sin entrenar + ficha", "fichas-uniforme": "uniforme + ficha", "fichas-ponderado": "ponderado + ficha",
+        "fichas-largo-base": "sin entrenar + ficha + largo", "fichas-largo-uniforme": "uniforme + ficha + largo", "fichas-largo-ponderado": "ponderado + ficha + largo"}
 nombres = {"original": "Tu original"}
 for v in variantes[1:]:
     t, _, var = v.partition("-")

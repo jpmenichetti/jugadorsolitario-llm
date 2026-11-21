@@ -4,7 +4,7 @@ train: true
 mask_prompt: true          # el modelo solo aprende de tus artículos, no del pedido
 batch_size: 2
 grad_accumulation_steps: 2
-iters: 70                  # ~1 pasada: en la prueba 1 el mejor punto fue el fin de la 1ª época
+iters: 60                  # 1 época exacta: en los entrenamientos 1 y 2 el mejor punto fue la iteración 60
 learning_rate: 5.0e-5
 num_layers: 16
 max_seq_length: 4096
