@@ -23,7 +23,9 @@
 Matriz de 2 × 3 sobre los mismos 8 artículos de prueba: tamaño (4B, 8B) × versión (sin entrenar, uniforme, ponderado).
 
 ## Entrenamiento (config/base.yaml, igual para ambos tamaños)
-LoRA rank 16, 16 capas, lr 5e-5, batch 2 × acumulación 2, 180 iteraciones (~3 pasadas), max_seq_length 4096, mask_prompt.
+LoRA rank 16, 16 capas, lr 5e-5, batch 2 × acumulación 2, max_seq_length 4096, mask_prompt.
+- **70 iteraciones (~1 época)**, con medición y guardado cada 15. Antes eran 180 (~3 épocas); se cambió porque el entrenamiento 1 sobreajustó después de la primera época (ver BITACORA.md).
+- Los scripts usan `caffeinate` para que el Mac no se suspenda.
 
 ## Evaluación
 `5_comparar.sh` genera un HTML con métricas de estilo (palabras por oración, riqueza de vocabulario, uso de vocabulario típico, párrafos, cursivas) y lectura lado a lado de todas las versiones generadas junto al original.
