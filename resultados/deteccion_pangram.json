@@ -1,0 +1,242 @@
+{
+ "842f954104efeb37": {
+  "prediction_short": "Human",
+  "headline": "Human Written",
+  "fraction_ai": 0.0,
+  "fraction_ai_assisted": 0.0,
+  "fraction_human": 1.0,
+  "version": "4.1",
+  "grupo": "original",
+  "archivo": "datos/prueba/originales/137185649.old-mans-journey.md"
+ },
+ "7cad922ac3573760": {
+  "prediction_short": "Human",
+  "headline": "Human Written",
+  "fraction_ai": 4.762932709870814e-30,
+  "fraction_ai_assisted": 3.360683660245493e-38,
+  "fraction_human": 1.0,
+  "version": "4.1",
+  "grupo": "original",
+  "archivo": "datos/prueba/originales/139617786.the-callisto-protocol.md"
+ },
+ "61d4ca160f4a4397": {
+  "prediction_short": "Human",
+  "headline": "Human Written",
+  "fraction_ai": 3.32775314633386e-39,
+  "fraction_ai_assisted": 1.401298464324817e-45,
+  "fraction_human": 1.0,
+  "version": "4.1",
+  "grupo": "original",
+  "archivo": "datos/prueba/originales/145710998.alan-wake-ii.md"
+ },
+ "f63504d9b69b05ea": {
+  "prediction_short": "Human",
+  "headline": "Human Written",
+  "fraction_ai": 0.0,
+  "fraction_ai_assisted": 3.923635700109488e-44,
+  "fraction_human": 1.0,
+  "version": "4.1",
+  "grupo": "original",
+  "archivo": "datos/prueba/originales/150815701.sable.md"
+ },
+ "57e96801dec481cf": {
+  "prediction_short": "Human",
+  "headline": "Human Written",
+  "fraction_ai": 0.0,
+  "fraction_ai_assisted": 0.0,
+  "fraction_human": 1.0,
+  "version": "4.1",
+  "grupo": "original",
+  "archivo": "datos/prueba/originales/158741599.dave-the-diver.md"
+ },
+ "62755fe24af4ec8e": {
+  "prediction_short": "Human",
+  "headline": "Human Written",
+  "fraction_ai": 3.3913933909720593e-28,
+  "fraction_ai_assisted": 1.246521082353209e-28,
+  "fraction_human": 1.0,
+  "version": "4.1",
+  "grupo": "original",
+  "archivo": "datos/prueba/originales/166041119.blue-prince.md"
+ },
+ "2d3359cd3461f9e5": {
+  "prediction_short": "Human",
+  "headline": "Human Written",
+  "fraction_ai": 1.57536422074068e-23,
+  "fraction_ai_assisted": 5.001494098562638e-33,
+  "fraction_human": 1.0,
+  "version": "4.1",
+  "grupo": "original",
+  "archivo": "datos/prueba/originales/181011036.spirit-of-the-north-1-and-2.md"
+ },
+ "198324bca6f8ed5c": {
+  "prediction_short": "Human",
+  "headline": "Human Written",
+  "fraction_ai": 9.787006473872846e-30,
+  "fraction_ai_assisted": 0.0,
+  "fraction_human": 1.0,
+  "version": "4.1",
+  "grupo": "original",
+  "archivo": "datos/prueba/originales/224082564.toem.md"
+ },
+ "16973fd10c95d2c4": {
+  "prediction_short": "AI",
+  "headline": "AI Generated",
+  "fraction_ai": 1.0,
+  "fraction_ai_assisted": 0.0,
+  "fraction_human": 1.3060101687507295e-42,
+  "version": "4.1",
+  "grupo": "4b-base",
+  "archivo": "resultados/4b-base/137185649.old-mans-journey.md"
+ },
+ "c4c2fa7773d3faaf": {
+  "prediction_short": "AI",
+  "headline": "AI Generated",
+  "fraction_ai": 1.0,
+  "fraction_ai_assisted": 0.0,
+  "fraction_human": 1.8616250098555195e-41,
+  "version": "4.1",
+  "grupo": "4b-base",
+  "archivo": "resultados/4b-base/139617786.the-callisto-protocol.md"
+ },
+ "b8ddb16c6ca8badb": {
+  "prediction_short": "AI",
+  "headline": "AI Generated",
+  "fraction_ai": 1.0,
+  "fraction_ai_assisted": 0.0,
+  "fraction_human": 1.1288662228945932e-36,
+  "version": "4.1",
+  "grupo": "4b-base",
+  "archivo": "resultados/4b-base/145710998.alan-wake-ii.md"
+ },
+ "6f0dc41b597512c3": {
+  "prediction_short": "AI",
+  "headline": "AI Generated",
+  "fraction_ai": 1.0,
+  "fraction_ai_assisted": 0.0,
+  "fraction_human": 1.4047212242903536e-26,
+  "version": "4.1",
+  "grupo": "4b-base",
+  "archivo": "resultados/4b-base/150815701.sable.md"
+ },
+ "e45eff43adebee56": {
+  "prediction_short": "AI",
+  "headline": "AI Generated",
+  "fraction_ai": 1.0,
+  "fraction_ai_assisted": 0.0,
+  "fraction_human": 6.245169095387633e-29,
+  "version": "4.1",
+  "grupo": "4b-base",
+  "archivo": "resultados/4b-base/158741599.dave-the-diver.md"
+ },
+ "5ad778b6938e7a8f": {
+  "prediction_short": "AI",
+  "headline": "AI Generated",
+  "fraction_ai": 1.0,
+  "fraction_ai_assisted": 0.0,
+  "fraction_human": 1.0762060418049417e-29,
+  "version": "4.1",
+  "grupo": "4b-base",
+  "archivo": "resultados/4b-base/166041119.blue-prince.md"
+ },
+ "d0a2d555dc355589": {
+  "prediction_short": "AI",
+  "headline": "AI Generated",
+  "fraction_ai": 1.0,
+  "fraction_ai_assisted": 0.0,
+  "fraction_human": 3.008876614778827e-34,
+  "version": "4.1",
+  "grupo": "4b-base",
+  "archivo": "resultados/4b-base/181011036.spirit-of-the-north-1-and-2.md"
+ },
+ "9d1ccefdaba09449": {
+  "prediction_short": "AI",
+  "headline": "AI Generated",
+  "fraction_ai": 1.0,
+  "fraction_ai_assisted": 4.116425670208033e-35,
+  "fraction_human": 2.4197997519566752e-21,
+  "version": "4.1",
+  "grupo": "4b-base",
+  "archivo": "resultados/4b-base/224082564.toem.md"
+ },
+ "c519a5978f4e631e": {
+  "prediction_short": "AI",
+  "headline": "AI Generated",
+  "fraction_ai": 1.0,
+  "fraction_ai_assisted": 0.0,
+  "fraction_human": 3.369182363655021e-11,
+  "version": "4.1",
+  "grupo": "4b-uniforme",
+  "archivo": "resultados/4b-uniforme/137185649.old-mans-journey.md"
+ },
+ "94e482cd8d2ba132": {
+  "prediction_short": "AI",
+  "headline": "AI Generated",
+  "fraction_ai": 1.0,
+  "fraction_ai_assisted": 0.0,
+  "fraction_human": 7.509955031055866e-35,
+  "version": "4.1",
+  "grupo": "4b-uniforme",
+  "archivo": "resultados/4b-uniforme/139617786.the-callisto-protocol.md"
+ },
+ "676521086d52e6e9": {
+  "prediction_short": "AI",
+  "headline": "AI Generated",
+  "fraction_ai": 1.0,
+  "fraction_ai_assisted": 0.0,
+  "fraction_human": 2.3969929587609514e-33,
+  "version": "4.1",
+  "grupo": "4b-uniforme",
+  "archivo": "resultados/4b-uniforme/145710998.alan-wake-ii.md"
+ },
+ "6f49119026ead1ce": {
+  "prediction_short": "AI",
+  "headline": "AI Generated",
+  "fraction_ai": 1.0,
+  "fraction_ai_assisted": 0.0,
+  "fraction_human": 3.2972552865562946e-42,
+  "version": "4.1",
+  "grupo": "4b-uniforme",
+  "archivo": "resultados/4b-uniforme/150815701.sable.md"
+ },
+ "ddf2536ea92d81c2": {
+  "prediction_short": "AI",
+  "headline": "AI Generated",
+  "fraction_ai": 1.0,
+  "fraction_ai_assisted": 0.0,
+  "fraction_human": 0.0,
+  "version": "4.1",
+  "grupo": "4b-uniforme",
+  "archivo": "resultados/4b-uniforme/158741599.dave-the-diver.md"
+ },
+ "845c68f2b8cfca9e": {
+  "prediction_short": "AI",
+  "headline": "AI Generated",
+  "fraction_ai": 1.0,
+  "fraction_ai_assisted": 0.0,
+  "fraction_human": 2.4837766312997676e-25,
+  "version": "4.1",
+  "grupo": "4b-uniforme",
+  "archivo": "resultados/4b-uniforme/166041119.blue-prince.md"
+ },
+ "79235f0e4e1c38be": {
+  "prediction_short": "AI",
+  "headline": "AI Generated",
+  "fraction_ai": 1.0,
+  "fraction_ai_assisted": 0.0,
+  "fraction_human": 0.0,
+  "version": "4.1",
+  "grupo": "4b-uniforme",
+  "archivo": "resultados/4b-uniforme/181011036.spirit-of-the-north-1-and-2.md"
+ },
+ "b559120ad433e35c": {
+  "prediction_short": "AI",
+  "headline": "AI Generated",
+  "fraction_ai": 1.0,
+  "fraction_ai_assisted": 0.0,
+  "fraction_human": 1.628994406840667e-20,
+  "version": "4.1",
+  "grupo": "4b-uniforme",
+  "archivo": "resultados/4b-uniforme/224082564.toem.md"
+ }
+}

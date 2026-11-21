@@ -108,3 +108,29 @@ Script: `4_generar.sh uniforme` → `resultados/4b-uniforme/`. Comparación: `re
 - La ventana de la penalización de repetición pasa de 64 a 256 tokens, contra bucles a nivel de párrafo.
 
 **Nota de método:** los resultados de la fase 1 no se regeneran. Al comparar las fases cambian a la vez el formato (con ficha) y los ajustes de generación. Dentro de la fase 2, la línea base y el modelo entrenado usan las mismas condiciones, así que esa comparación es limpia.
+
+## 2026-11-21: Se agrega la detección de IA (Pangram)
+
+**Idea de Juan Pablo:** agregar a la comparación un factor externo: qué probabilidad asigna un detector comercial a que cada texto haya sido escrito por IA.
+
+- **Herramienta elegida:** Pangram. Soporta español y, según el propio fabricante, tiene más de 99% de precisión y una tasa de falsos positivos en español de 0,0026% (cifras no independientes). Cuesta US$ 0,05 por cada 100 palabras.
+- **Alternativa descartada:** Binoculars, un método local y gratuito con dos modelos de lenguaje como jueces. Se descartó por tres razones: se evaluó sobre todo en inglés, al usar modelos Qwen como jueces se evaluaría a su propia familia, y es menos confiable que un servicio entrenado en español.
+- **Implementación:** `7_detectar_ia.sh` y `herramientas/detectar.py`. Usa la API asíncrona (`POST /task` y luego `GET /task/{id}`) y guarda en caché por texto para no pagar dos veces. En el informe se agregan el % del texto escrito por IA, el % asistido por IA y cuántos textos se clasificaron como IA, más una etiqueta en cada texto de la lectura lado a lado.
+- **Advertencia de método:** los detectores se equivocan, sobre todo fuera del inglés. Si un original se marca como IA, es un falso positivo y debe registrarse como tal.
+
+## 2026-11-21: Primera evaluación con Pangram (fase 1)
+
+Costo: **US$ 6,7** (24 textos: 8 originales, 8 del 4B sin entrenar, 8 del 4B uniforme).
+
+| Versión | Clasificados como IA | % del texto escrito por IA |
+|---|---|---|
+| Originales | 0 de 8 | 0% (todos "Human" con certeza total) |
+| 4B sin entrenar | 8 de 8 | 100% |
+| 4B uniforme | 8 de 8 | 100% |
+
+**Lectura:**
+- Ningún falso positivo: Pangram reconoce los 8 originales como humanos.
+- El entrenamiento de estilo **no engaña al detector en absoluto**. El modelo entrenado sigue con 100% IA en los 8 textos, aunque las métricas de estilo se acercaron a las del original.
+- Aprendizaje: parecer humano ante un lector y ante un detector son cosas distintas. El detector capta patrones estadísticos (por ejemplo, la elección de palabras) que el fine-tuning de una época no cambia, aunque cambie la forma visible del texto.
+
+**Política de uso decidida por Juan Pablo:** por el costo, Pangram se ejecuta solo en momentos importantes, no después de cada generación. Los originales ya están guardados en caché y no se vuelven a cobrar. Cada nueva versión de 8 textos cuesta ~US$ 2,2.

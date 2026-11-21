@@ -9,3 +9,6 @@ adaptadores/
 # macOS
 .DS_Store
 _to_delete/
+
+# Clave de la API de Pangram (secreta)
+.pangram_key

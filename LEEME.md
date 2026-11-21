@@ -72,3 +72,14 @@ bash 5_comparar.sh fichas               # abre resultados/comparacion_fichas.htm
 ```
 
 Para la versión ponderada usa `fichas-ponderado`, y para el modelo grande agrega `8b` al final, como en la fase 1.
+
+## Detección de IA con Pangram
+
+`7_detectar_ia.sh` envía tus originales de prueba y todos los textos generados a Pangram, un servicio comercial que estima qué parte de un texto fue escrita por IA. Los resultados aparecen como filas nuevas en el informe de `5_comparar.sh`.
+
+1. Crea una cuenta en pangram.com, entra al panel (dashboard) y haz clic en **API** para ver tu clave.
+2. En esta carpeta, crea un archivo llamado `.pangram_key` que contenga solo la clave. Por ejemplo, en la Terminal: `echo "TU_CLAVE" > .pangram_key`. El archivo está en el `.gitignore` y no se sube a GitHub.
+3. Corre `bash 7_detectar_ia.sh`. Antes de enviar nada te muestra cuántas palabras son y el costo estimado (US$ 0,05 cada 100 palabras), y pide confirmación.
+4. Corre `bash 5_comparar.sh` (o `bash 5_comparar.sh fichas`).
+
+Solo se evalúan los textos nuevos o modificados; lo ya evaluado queda guardado en `resultados/deteccion_pangram.json`.

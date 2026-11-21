@@ -41,10 +41,19 @@ for p in pedidos:
         f = f"resultados/{v}/{p['id']}.md"
         if os.path.exists(f): textos[v][p["id"]] = cuerpo(f)
 
+# Detección de IA (Pangram), si se ejecutó 7_detectar_ia.sh
+import hashlib
+DET = json.load(open("resultados/deteccion_pangram.json")) if os.path.exists("resultados/deteccion_pangram.json") else {}
+def det(t): return DET.get(hashlib.sha256(t.encode()).hexdigest()[:16])
 prom = {}
 for v in variantes:
     ms = [metricas(t) for t in textos[v].values()]
     prom[v] = {k: round(st.mean(m[k] for m in ms), 1) for k in ms[0]} if ms else {}
+    ds = [det(t) for t in textos[v].values()]; ds = [d for d in ds if d and "error" not in d]
+    if DET and prom[v]:
+        prom[v]["Pangram: % del texto escrito por IA"] = round(100 * st.mean(d["fraction_ai"] for d in ds), 1) if ds else "–"
+        prom[v]["Pangram: % asistido por IA"] = round(100 * st.mean(d["fraction_ai_assisted"] for d in ds), 1) if ds else "–"
+        prom[v]["Pangram: textos clasificados como IA"] = f"{sum(d['prediction_short'] == 'AI' for d in ds)} de {len(ds)}" if ds else "–"
 
 E = html.escape
 filas = "".join(f"<tr><td>{E(k)}</td>" + "".join(f"<td>{prom[v].get(k,'–')}</td>" for v in variantes) + "</tr>" for k in prom["original"])
@@ -56,7 +65,10 @@ for v in variantes[1:]:
 def md2html(t): return "".join(f"<p>{E(x).replace(chr(10), '<br>')}</p>" for x in t.split("\n\n"))
 secciones = ""
 for p in pedidos:
-    cols = "".join(f"<div class='col'><h4>{nombres[v]}</h4>{md2html(textos[v].get(p['id'], '(sin generar)'))}</div>" for v in variantes)
+    def etiqueta(v):
+        d = det(textos[v].get(p["id"], ""))
+        return f"<p class='det'>Pangram: <b>{E(d['prediction_short'])}</b> (IA {d['fraction_ai']:.0%})</p>" if d and "error" not in d else ""
+    cols = "".join(f"<div class='col'><h4>{nombres[v]}</h4>{etiqueta(v)}{md2html(textos[v].get(p['id'], '(sin generar)'))}</div>" for v in variantes)
     secciones += f"<details><summary>{E(p['titulo'])}</summary><div class='grid'>{cols}</div></details>"
 
 page = f"""<!doctype html><html lang=es><meta charset=utf-8><title>Comparación — LLM Personal</title>
@@ -64,7 +76,7 @@ page = f"""<!doctype html><html lang=es><meta charset=utf-8><title>Comparación 
 table{{border-collapse:collapse;margin:1em 0}}td,th{{border:1px solid #ddd;padding:.4em .8em;text-align:right}}td:first-child{{text-align:left}}
 th{{background:#f3f3f3}}details{{margin:.6em 0;border:1px solid #ddd;border-radius:6px;padding:.5em 1em}}summary{{cursor:pointer;font-weight:600}}
 .grid{{display:grid;grid-template-columns:repeat({len(variantes)},1fr);gap:1em}}.col{{font-size:13px;border-top:3px solid #999;padding-top:.3em}}
-.col p{{margin:.5em 0}}</style>
+.col p{{margin:.5em 0}}.det{{font-size:12px;background:#f3f3f3;padding:.2em .5em;border-radius:4px}}</style>
 <h1>El Jugador Solitario: original vs. modelo{" (fase 2: con fichas)" if FICHAS else " (fase 1: sin fichas)"}</h1>
 <p>Promedios sobre los {len(pedidos)} artículos de prueba (que el modelo nunca vio). Cuanto más se parezca una columna a <b>Tu original</b>, mejor imitó tu estilo.</p>
 <table><tr><th>Métrica</th>{''.join(f'<th>{nombres[v]}</th>' for v in variantes)}</tr>{filas}</table>
@@ -74,3 +86,4 @@ SALIDA = "resultados/comparacion_fichas.html" if FICHAS else "resultados/compara
 open(SALIDA, "w").write(page)
 print("Informe escrito en", SALIDA)
 for v in variantes: print(f"{nombres[v]:26s}", prom[v])
+if DET: print("(Incluye resultados de Pangram. Los detectores pueden equivocarse, sobre todo fuera del inglés.)")
