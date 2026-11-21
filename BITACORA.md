@@ -207,3 +207,38 @@ Script: `2_linea_base.sh 4b fichas` → `resultados/4b-fichas-base/`
 - Datos: `datos/fichas-largo-uniforme/`, `datos/fichas-largo-ponderado/`, `datos/prueba/prompts_fichas-largo.jsonl`.
 - **Configuración:** `iters` pasa de 70 a **60** (una época exacta), porque en los dos entrenamientos anteriores el mejor Val loss fue en la iteración 60. Así el adaptador final ya es el óptimo y no hay que reemplazarlo.
 - Los scripts 2 y 4 ahora aceptan cualquier fase (por ejemplo `bash 2_linea_base.sh 4b fichas-largo`).
+
+## 2026-11-21: Entrenamiento 3 + generación, 4B fichas-largo-uniforme
+
+Entrenamiento: 60 iteraciones, Val loss 2,403 → 1,823 → 1,771 → 1,738 → **1,725** (iteración 60, la final). Casi idéntico al entrenamiento 2: la línea de largo pesa poco en la pérdida.
+
+**Largo pedido vs. generado:**
+
+| Artículo | Pedido | Generado | Original |
+|---|---|---|---|
+| Old Man's Journey | 350 | 310 | 342 |
+| The Callisto Protocol | 400 | 340 | 408 |
+| Alan Wake II | 750 | 544 | 745 |
+| Sable | 450 | 353 | 454 |
+| Dave the Diver | 650 | 747 | 671 |
+| Blue Prince | 750 | 802 | 758 |
+| Spirit of the North | 850 | 649 | 828 |
+| TOEM | 650 | 590 | 655 |
+
+| Métrica (promedio) | Original | Uniforme + ficha | Uniforme + ficha + largo |
+|---|---|---|---|
+| Palabras | 606 | 246 | **540** |
+| Párrafos | 10,4 | 5,8 | **10,2** |
+| Palabras por oración | 22,4 | 17,7 | 19,0 |
+| Cursivas/negritas | 9,4 | 1,5 | 2,8 |
+| Vocabulario típico (por 1000) | 118 | 136 | 151 |
+
+**Lo que funcionó:** el modelo **respeta el largo pedido** (sigue la tendencia: textos cortos cuando se piden cortos, largos cuando se piden largos) y la estructura de párrafos ya coincide con los originales. Sin subtítulos, sin bucles exactos, sin palabras en otros idiomas.
+
+**El nuevo problema: relleno.** Para alcanzar el largo, el modelo **recicla la ficha**: en TOEM menciona tres veces los puercoespines y "algo que me inspire una melodía", y en Blue Prince repite la grilla de 5x9 y los 50 pasos. Cuando se le acaba la ficha, **vuelve a inventar** (un niño que "debe ser invisible al menos 10 segundos") y comete errores de comprensión ("la jugabilidad es bastante baja" en vez de "la dificultad es baja"; "estudio sueño"). La exageración del vocabulario típico aumentó (151 vs. 118).
+
+**Aprendizaje central del experimento:** el contenido de un artículo tiene que venir de alguna parte. Hay dos fuentes posibles: la ficha (lo que aporta el autor) o el conocimiento del modelo. Un modelo de 4B no conoce estos juegos, así que si la ficha no trae suficiente material, solo puede repetir o inventar. El fine-tuning resolvió la **forma** (estructura, largo, cierre, ausencia de negritas), pero no puede crear el **fondo**.
+
+## 2026-11-21: Aclaración de objetivo (Juan Pablo)
+
+El objetivo del proyecto es **aprender la mecánica, los parámetros y los resultados posibles** de los LLM personalizados, no obtener un modelo que escriba artículos publicables. No se usará para escribir en su nombre. Desde aquí, cada experimento se elige por lo que enseña, no para pulir el resultado.
