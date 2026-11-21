@@ -59,3 +59,16 @@ Si **Val loss** baja y después empieza a subir, el modelo está memorizando en 
 
 - **"Out of memory" o el Mac se pone muy lento:** en `config/base.yaml` cambia `batch_size: 2` por `batch_size: 1`.
 - Los adaptadores de 4B no sirven para el modelo de 8B, ni al revés. Por eso cada tamaño tiene sus propias carpetas.
+
+## Fase 2: con fichas
+
+En la fase 2, cada pedido incluye una ficha con los datos del juego, para que el modelo no invente. Las fichas están en `datos/fichas.json`.
+
+```
+bash 2_linea_base.sh 4b fichas          # el "antes", con ficha
+bash 3_entrenar.sh fichas-uniforme      # entrenamiento, ~25 min
+bash 4_generar.sh fichas-uniforme
+bash 5_comparar.sh fichas               # abre resultados/comparacion_fichas.html
+```
+
+Para la versión ponderada usa `fichas-ponderado`, y para el modelo grande agrega `8b` al final, como en la fase 1.

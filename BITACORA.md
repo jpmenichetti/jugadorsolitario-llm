@@ -84,8 +84,27 @@ Script: `4_generar.sh uniforme` → `resultados/4b-uniforme/`. Comparación: `re
 1. **El estilo se aprende rápido:** con una sola época ya se nota el cambio de forma.
 2. **El fine-tuning de estilo empeora las alucinaciones.** Tus artículos afirman datos concretos (estudio, año, mecánicas), así que el modelo aprende a *sonar* concreto y seguro, pero sin saber los datos. El resultado son invenciones más específicas y convincentes que las del modelo base.
 3. **Un modelo pequeño tiende a la caricatura y a los bucles:** exagera los rasgos frecuentes y puede quedar atrapado repitiendo.
+4. **Revisión manual de Juan Pablo (TOEM):** el tono se parece más al suyo, pero no solo los datos duros son falsos: **todo el contenido del juego es inventado** (premisa, mecánicas, protagonista). El modelo no conoce juegos de nicho. Además apareció una **palabra en portugués** ("pessoal" en vez de "personal"). Qwen es multilingüe, y las palabras parecidas entre idiomas pueden colarse, sobre todo con temperatura alta.
 
 **Ideas para corregir:**
 - Repeticiones: ampliar la ventana de la penalización de repetición (de 64 a ~256 tokens). Es un ajuste de generación; no requiere reentrenar.
 - Datos inventados: entregarle al modelo una **ficha con datos del juego** en el pedido (estudio, año, género, notas propias) y entrenarlo con fichas extraídas de cada artículo. Así el modelo aporta el estilo y tú aportas los hechos, que es además el uso realista de una herramienta así.
 - Largo: indicar el largo deseado en el pedido, o revisar si más iteraciones o un learning rate mayor ayudan (búsqueda de hiperparámetros).
+
+## 2026-11-21: Preparación de la fase 2 (con fichas)
+
+**Motivo:** en la fase 1 el modelo aprendió el tono, pero inventó *todo* el contenido de los juegos. Un modelo de 4B no conoce juegos de nicho, y el entrenamiento le enseñó a sonar seguro y concreto.
+
+**Cambio de enfoque:** el pedido ahora incluye una **ficha del juego** (estudio, año, género, premisa, mecánicas destacadas, opinión y veredicto). El modelo aporta el estilo y la ficha aporta los hechos. Es también el uso realista: Juan Pablo escribe notas rápidas y el modelo redacta el borrador.
+
+- Se extrajeron 139 fichas, una por artículo (mediana ~130 palabras), solo con información presente en cada texto. Están en `datos/fichas.json` para revisarlas o corregirlas.
+- La instrucción de sistema ahora pide usar solo los datos de la ficha y no inventar.
+- Se quitaron 17 párrafos repetidos más que no detectó la limpieza anterior ("Thanks for reading…", créditos de imágenes, enlaces a otros posts, una nota al pie suelta).
+- Se mantienen la misma división (121 / 10 / 8) y los mismos 15 artículos duplicados en la variante ponderada.
+- Datos nuevos: `datos/fichas-uniforme/`, `datos/fichas-ponderado/`, `datos/prueba/prompts_fichas.jsonl`.
+
+**Ajustes de generación** (aplican a todo lo que se genere desde ahora):
+- Temperatura 0,7 → 0,6, más un filtro `min_p` 0,05 que descarta palabras muy improbables. Busca evitar intrusiones de otros idiomas como "pessoal".
+- La ventana de la penalización de repetición pasa de 64 a 256 tokens, contra bucles a nivel de párrafo.
+
+**Nota de método:** los resultados de la fase 1 no se regeneran. Al comparar las fases cambian a la vez el formato (con ficha) y los ajustes de generación. Dentro de la fase 2, la línea base y el modelo entrenado usan las mismas condiciones, así que esa comparación es limpia.

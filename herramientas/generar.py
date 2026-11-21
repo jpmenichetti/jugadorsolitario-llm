@@ -8,14 +8,17 @@ ap.add_argument("--modelo", required=True)
 ap.add_argument("--adaptador", default=None)
 ap.add_argument("--salida", required=True)
 ap.add_argument("--max-tokens", type=int, default=2500)
-ap.add_argument("--temp", type=float, default=0.7)
+ap.add_argument("--temp", type=float, default=0.6)
+ap.add_argument("--prompts", default="datos/prueba/prompts.jsonl")
 a = ap.parse_args()
 
 model, tok = load(a.modelo, adapter_path=a.adaptador)
-sampler = make_sampler(temp=a.temp, top_p=0.9)
-procs = make_logits_processors(repetition_penalty=1.1, repetition_context_size=64)
+# min_p descarta palabras muy improbables (ej. variantes en otros idiomas); la ventana de 256 tokens
+# ayuda a evitar bucles de repetición a nivel de párrafo (ajustes de la fase 2)
+sampler = make_sampler(temp=a.temp, top_p=0.9, min_p=0.05)
+procs = make_logits_processors(repetition_penalty=1.1, repetition_context_size=256)
 os.makedirs(a.salida, exist_ok=True)
-pedidos = [json.loads(l) for l in open("datos/prueba/prompts.jsonl")]
+pedidos = [json.loads(l) for l in open(a.prompts)]
 for i, p in enumerate(pedidos, 1):
     print(f"[{i}/{len(pedidos)}] {p['titulo']} ...", flush=True)
     msgs = [{"role": "system", "content": p["system"]}, {"role": "user", "content": p["prompt"]}]

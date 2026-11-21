@@ -1,6 +1,7 @@
 """Compara los artículos originales de prueba con los generados por cada variante.
 Métricas simples de estilo + lectura lado a lado. Escribe resultados/comparacion.html"""
-import json, os, re, html, glob, statistics as st
+import json, os, re, sys, html, glob, statistics as st
+FICHAS = len(sys.argv) > 1 and sys.argv[1] == "fichas"   # fase 2: solo resultados con fichas
 from collections import Counter
 
 def cuerpo(path):
@@ -29,9 +30,9 @@ def metricas(t):
     }
 
 orig = {os.path.basename(f)[:-3]: f for f in glob.glob("datos/prueba/originales/*.md")}
-pedidos = [json.loads(l) for l in open("datos/prueba/prompts.jsonl")]
-ORDEN = {"base": 0, "uniforme": 1, "ponderado": 2}
-encontradas = [d for d in os.listdir("resultados") if glob.glob(f"resultados/{d}/*.md")] if os.path.isdir("resultados") else []
+pedidos = [json.loads(l) for l in open("datos/prueba/prompts_fichas.jsonl" if FICHAS else "datos/prueba/prompts.jsonl")]
+ORDEN = {"base": 0, "uniforme": 1, "ponderado": 2, "fichas-base": 0, "fichas-uniforme": 1, "fichas-ponderado": 2}
+encontradas = [d for d in os.listdir("resultados") if glob.glob(f"resultados/{d}/*.md") and (("fichas" in d) == FICHAS)] if os.path.isdir("resultados") else []
 variantes = ["original"] + sorted(encontradas, key=lambda d: (d.split("-")[0], ORDEN.get(d.split("-", 1)[-1], 9)))
 textos = {v: {} for v in variantes}
 for p in pedidos:
@@ -47,7 +48,7 @@ for v in variantes:
 
 E = html.escape
 filas = "".join(f"<tr><td>{E(k)}</td>" + "".join(f"<td>{prom[v].get(k,'–')}</td>" for v in variantes) + "</tr>" for k in prom["original"])
-ETIQ = {"base": "sin entrenar", "uniforme": "uniforme", "ponderado": "ponderado"}
+ETIQ = {"base": "sin entrenar", "uniforme": "uniforme", "ponderado": "ponderado", "fichas-base": "sin entrenar + ficha", "fichas-uniforme": "uniforme + ficha", "fichas-ponderado": "ponderado + ficha"}
 nombres = {"original": "Tu original"}
 for v in variantes[1:]:
     t, _, var = v.partition("-")
@@ -64,11 +65,12 @@ table{{border-collapse:collapse;margin:1em 0}}td,th{{border:1px solid #ddd;paddi
 th{{background:#f3f3f3}}details{{margin:.6em 0;border:1px solid #ddd;border-radius:6px;padding:.5em 1em}}summary{{cursor:pointer;font-weight:600}}
 .grid{{display:grid;grid-template-columns:repeat({len(variantes)},1fr);gap:1em}}.col{{font-size:13px;border-top:3px solid #999;padding-top:.3em}}
 .col p{{margin:.5em 0}}</style>
-<h1>El Jugador Solitario: original vs. modelo</h1>
+<h1>El Jugador Solitario: original vs. modelo{" (fase 2: con fichas)" if FICHAS else " (fase 1: sin fichas)"}</h1>
 <p>Promedios sobre los {len(pedidos)} artículos de prueba (que el modelo nunca vio). Cuanto más se parezca una columna a <b>Tu original</b>, mejor imitó tu estilo.</p>
 <table><tr><th>Métrica</th>{''.join(f'<th>{nombres[v]}</th>' for v in variantes)}</tr>{filas}</table>
 <h2>Lectura lado a lado</h2><p>Consejo: lee primero las versiones generadas sin mirar la original y anota cuál "suena" más a ti.</p>{secciones}</html>"""
 os.makedirs("resultados", exist_ok=True)
-open("resultados/comparacion.html", "w").write(page)
-print("Informe escrito en resultados/comparacion.html")
+SALIDA = "resultados/comparacion_fichas.html" if FICHAS else "resultados/comparacion.html"
+open(SALIDA, "w").write(page)
+print("Informe escrito en", SALIDA)
 for v in variantes: print(f"{nombres[v]:26s}", prom[v])
