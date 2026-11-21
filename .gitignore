@@ -1,0 +1,10 @@
+# Entorno de Python (se recrea con 1_instalar.sh)
+.venv/
+__pycache__/
+*.pyc
+
+# Pesos entrenados: pesados y se regeneran con 3_entrenar.sh
+adaptadores/
+
+# macOS
+.DS_Store

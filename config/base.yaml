@@ -1,0 +1,20 @@
+# Configuración de entrenamiento LoRA (mlx-lm). Los scripts completan model, data y adapter_path.
+fine_tune_type: lora
+train: true
+mask_prompt: true          # el modelo solo aprende de tus artículos, no del pedido
+batch_size: 2
+grad_accumulation_steps: 2
+iters: 180                 # ~3 pasadas por los artículos
+learning_rate: 5.0e-5
+num_layers: 16
+max_seq_length: 4096
+grad_checkpoint: true      # ahorra memoria
+steps_per_report: 10
+steps_per_eval: 30
+val_batches: -1
+save_every: 30
+seed: 42
+lora_parameters:
+  rank: 16
+  scale: 20.0
+  dropout: 0.05
