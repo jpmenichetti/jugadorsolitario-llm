@@ -520,3 +520,18 @@ Los dos tocan poco el borrador, y el modelo entrenado cambia algo más que Claud
 - **El modelo sin entrenar no sirve:** reescribiendo el mismo borrador queda en 96% IA. El efecto viene del entrenamiento, como ya se había visto en la fase 2b.
 - **Precauciones:** solo hay 2 textos en el pipeline real y una generación por artículo, y es un único detector (Pangram, versión de noviembre de 2026). Los borradores de prueba se escribieron a partir de los originales, así que conservan parte del texto humano (0,61 en común), aunque los juegos nuevos no tienen ese origen y dan el mismo resultado.
 - **Reflexión:** el resultado muestra lo frágiles que son los detectores de IA frente a un modelo pequeño ajustado con textos de una persona. Con un Mac, 121 artículos y 80 minutos de entrenamiento se logra un texto que el detector atribuye a un humano. Es un aprendizaje sobre los límites de la detección, no una recomendación de uso: el proyecto no busca publicar artículos con el nombre del autor.
+
+## 2026-11-22: Informe final y publicación resumida
+
+- **`INFORME_FINAL.md`:** informe completo y genérico (sin nombres de juegos ni datos personales): abstract, fases, herramientas, recorrido, comparación, 16 aprendizajes, limitaciones, costos y mapa del repositorio.
+- **`RESUMEN.md`:** publicación breve para LinkedIn. Claude escribió un borrador neutro en primera persona (198 palabras, `datos/resumen/RESUMEN_borrador.md`), el 8B de transferencia lo reescribió (`resultados/8b-resumen/`) y Claude lo verificó.
+- **Qué hizo el modelo fuera de su terreno** (un texto que no es una reseña):
+  - Conservó todos los datos (fin de semana, 121 artículos, 89% → 3%, el control) y la primera persona.
+  - Esta vez reescribió más: solo comparte un **0,66** con el borrador, contra ~0,82 en las reseñas. Con un tema distinto a los de entrenamiento, se apoya menos en el borrador.
+  - Agregó el título "# LLM Personal".
+  - Hubo una deformación interesante: tomó una frase de su saludo habitual ("comparto información suficiente para…") y la convirtió en "donde comparto información suficiente para hacer reviews de video juegos". Es una muletilla aprendida que se cuela donde no corresponde.
+  - En una oración el sujeto quedó ambiguo ("el estilo se hizo evidente, pero… inventaba").
+  - Usó "nos lleva a pensar" en un texto en primera persona singular.
+- **Verificación (7 cambios):** quitar el título, corregir la frase del newsletter, aclarar el sujeto ("el modelo inventaba"), "nos" → "me", dos comas y los enlaces (newsletter e informe). Se quitaron las cursivas de Markdown, porque LinkedIn no las muestra.
+- **Pendiente:** el repositorio es privado. Para que el enlace al informe funcione, hay que hacerlo público o publicar el informe en un Gist.
+- **Publicación del informe:** se publicó en un Gist (https://gist.github.com/jpmenichetti/0ac92541115b9ba0b6dd5370a6c798a3) a partir de `INFORME_GIST.md`, una versión sin las referencias al repositorio privado. `RESUMEN.md` enlaza a ese Gist y no al newsletter, porque LinkedIn admite una sola URL por publicación.

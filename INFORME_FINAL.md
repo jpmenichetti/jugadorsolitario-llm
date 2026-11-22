@@ -220,4 +220,4 @@ Todo el entrenamiento y la generación corrieron en el Mac, sin costo de nube.
 | `registros/` | Logs de cada entrenamiento |
 | `BITACORA.md` | Registro cronológico detallado |
 | `INFORME_FINAL.md` | Este documento |
-| `RESUMEN.md` | Versión breve centrada en los resultados (con su versión reescrita por el modelo) |
+| `RESUMEN.md` | Publicación breve para LinkedIn, reescrita por el modelo personal y verificada |
