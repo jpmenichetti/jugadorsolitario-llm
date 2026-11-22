@@ -307,3 +307,25 @@ Script: `8_busqueda_hiperparametros.sh` (`herramientas/busqueda.py`). Corre de n
 
 - **Medida:** el mejor Val loss y en qué iteración ocurre. Solo se guarda el adaptador final, para ahorrar disco.
 - Resultados en `resultados/hiperparametros.md`, que se actualiza tras cada corrida. Si se interrumpe, se retoma sin repetir lo hecho.
+
+## 2026-11-21/22: Resultados de la búsqueda de hiperparámetros (4B, fichas + largo, 60 iteraciones)
+
+| Corrida | Parámetros entrenables | Mejor Val loss | Diferencia con la base | Minutos |
+|---|---|---|---|---|
+| base (lr 5e-5, rank 16, 16 capas) | 14,7 M | 1,725 | – | ~35 |
+| lr 2e-5 | 14,7 M | 1,730 | +0,005 | 27 |
+| lr 1e-4 | 14,7 M | 1,773 | +0,048 | 29 |
+| rank 8 | ~7 M | 1,729 | +0,004 | 30 |
+| rank 32 | 29,4 M | 1,739 | +0,014 | 29 |
+| 8 capas | ~7 M | 1,779 | +0,054 | 24 |
+| **36 capas (todas)** | 33,0 M | **1,702** | **−0,023** | 44 |
+| *Referencia: 8B base* | *19,4 M* | *1,599* | *−0,126* | *~80* |
+
+En ninguna corrida hubo sobreajuste dentro de la época: todas mejoraron hasta la iteración 60.
+
+**Aprendizajes:**
+1. **Learning rate:** hay un rango "seguro". 2e-5 y 5e-5 terminan igual (el más bajo solo arranca más lento). 1e-4 es claramente peor: con pasos demasiado grandes el modelo no se acerca con precisión al óptimo.
+2. **Rank casi no importa:** el rank 8, con la mitad de parámetros, empata con el 16. El rank 32, con el doble, es levemente peor. La capacidad del adaptador **no** era el cuello de botella.
+3. **Qué capas se adaptan importa más que cuán grande es el adaptador.** Con 8 capas empeora y con las 36 mejora. El rank 32 (29 M parámetros) y las 36 capas (33 M) tienen un tamaño parecido, pero solo las 36 capas mejoran: importa *dónde* se ponen los parámetros, no *cuántos* hay. A cambio, entrenar las 36 capas toma un 50% más de tiempo.
+4. **El tamaño del modelo pesa más que todo lo demás.** El mejor ajuste de hiperparámetros movió el Val loss 0,02. Pasar de 4B a 8B lo movió 0,13, seis veces más.
+5. **Precaución estadística:** con solo 10 artículos de validación y una sola corrida por configuración, las diferencias menores a ~0,01 (lr 2e-5, rank 8) deben considerarse empates.

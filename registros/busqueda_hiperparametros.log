@@ -1,0 +1,14 @@
+
+[1/6] lr-2e-5: learning rate 2e-5 (más lento)  (22:02)
+
+[2/6] lr-1e-4: learning rate 1e-4 (más rápido)  (22:29)
+
+[3/6] rank-8: rank 8 (adaptador más chico)  (22:57)
+
+[4/6] rank-32: rank 32 (adaptador más grande)  (23:27)
+
+[5/6] capas-8: 8 capas adaptadas  (23:56)
+
+[6/6] capas-todas: las 36 capas adaptadas  (00:21)
+
+✅ Búsqueda terminada. Tabla en resultados/hiperparametros.md
