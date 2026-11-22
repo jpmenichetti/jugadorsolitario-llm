@@ -398,5 +398,245 @@
   "version": "4.1",
   "grupo": "8b-fichas-largo-base",
   "archivo": "resultados/8b-fichas-largo-base/224082564.toem.md"
+ },
+ "d8ab82623bc962ed": {
+  "prediction_short": "Human",
+  "headline": "Human Written",
+  "fraction_ai": 0.0002596546255517751,
+  "fraction_ai_assisted": 2.8356445633111234e-34,
+  "fraction_human": 0.9997403621673584,
+  "version": "4.1",
+  "grupo": "8b-pipeline-verificado",
+  "archivo": "resultados/8b-pipeline-verificado/control-resonant.md"
+ },
+ "27f540bf6ea486de": {
+  "prediction_short": "Human",
+  "headline": "Mostly Human Written",
+  "fraction_ai": 0.08093775063753128,
+  "fraction_ai_assisted": 2.0968061195422833e-21,
+  "fraction_human": 0.9190622568130493,
+  "version": "4.1",
+  "grupo": "8b-pipeline-verificado",
+  "archivo": "resultados/8b-pipeline-verificado/squirrel-with-a-gun.md"
+ },
+ "310a3020b770b904": {
+  "prediction_short": "Human",
+  "headline": "Mostly Human Written",
+  "fraction_ai": 0.059978190809488297,
+  "fraction_ai_assisted": 0.0,
+  "fraction_human": 0.940021812915802,
+  "version": "4.1",
+  "grupo": "8b-pipeline",
+  "archivo": "resultados/8b-pipeline/control-resonant.md"
+ },
+ "7b71c3cbda52fc3b": {
+  "prediction_short": "Human",
+  "headline": "Human Written",
+  "fraction_ai": 4.265864191835972e-13,
+  "fraction_ai_assisted": 8.452842490860817e-33,
+  "fraction_human": 1.0,
+  "version": "4.1",
+  "grupo": "8b-pipeline",
+  "archivo": "resultados/8b-pipeline/squirrel-with-a-gun.md"
+ },
+ "3739a3d8d7dbe381": {
+  "prediction_short": "AI",
+  "headline": "AI Generated",
+  "fraction_ai": 0.9999923706054688,
+  "fraction_ai_assisted": 6.716845135645855e-11,
+  "fraction_human": 7.6168798841536045e-06,
+  "version": "4.1",
+  "grupo": "8b-transferencia-base",
+  "archivo": "resultados/8b-transferencia-base/137185649.old-mans-journey.md"
+ },
+ "f7e86d39c18b0d2d": {
+  "prediction_short": "AI",
+  "headline": "AI Generated",
+  "fraction_ai": 1.0,
+  "fraction_ai_assisted": 6.722263688800196e-23,
+  "fraction_human": 1.5831075430336027e-15,
+  "version": "4.1",
+  "grupo": "8b-transferencia-base",
+  "archivo": "resultados/8b-transferencia-base/139617786.the-callisto-protocol.md"
+ },
+ "7f86c894ba8c9da0": {
+  "prediction_short": "Mixed",
+  "headline": "AI Detected",
+  "fraction_ai": 0.7530458569526672,
+  "fraction_ai_assisted": 0.04986875131726265,
+  "fraction_human": 0.19708538055419922,
+  "version": "4.1",
+  "grupo": "8b-transferencia-base",
+  "archivo": "resultados/8b-transferencia-base/145710998.alan-wake-ii.md"
+ },
+ "efa9dee7ead23072": {
+  "prediction_short": "AI",
+  "headline": "AI Generated",
+  "fraction_ai": 1.0,
+  "fraction_ai_assisted": 8.139577260597131e-24,
+  "fraction_human": 1.6692173684940137e-11,
+  "version": "4.1",
+  "grupo": "8b-transferencia-base",
+  "archivo": "resultados/8b-transferencia-base/150815701.sable.md"
+ },
+ "6b33b069c9726cee": {
+  "prediction_short": "AI",
+  "headline": "AI Generated",
+  "fraction_ai": 1.0,
+  "fraction_ai_assisted": 2.7272326651977803e-26,
+  "fraction_human": 1.2156462275480845e-15,
+  "version": "4.1",
+  "grupo": "8b-transferencia-base",
+  "archivo": "resultados/8b-transferencia-base/158741599.dave-the-diver.md"
+ },
+ "e450220a0b0788f9": {
+  "prediction_short": "AI",
+  "headline": "AI Detected",
+  "fraction_ai": 0.8949732184410095,
+  "fraction_ai_assisted": 1.8776386695451563e-12,
+  "fraction_human": 0.10502678900957108,
+  "version": "4.1",
+  "grupo": "8b-transferencia-base",
+  "archivo": "resultados/8b-transferencia-base/166041119.blue-prince.md"
+ },
+ "debfed05293b6a5e": {
+  "prediction_short": "AI",
+  "headline": "AI Generated",
+  "fraction_ai": 0.9993898272514343,
+  "fraction_ai_assisted": 3.2948746066526634e-20,
+  "fraction_human": 0.0006101538892835379,
+  "version": "4.1",
+  "grupo": "8b-transferencia-base",
+  "archivo": "resultados/8b-transferencia-base/181011036.spirit-of-the-north-1-and-2.md"
+ },
+ "720d79c5f07130b6": {
+  "prediction_short": "AI",
+  "headline": "AI Generated",
+  "fraction_ai": 1.0,
+  "fraction_ai_assisted": 2.7185809838922018e-21,
+  "fraction_human": 2.598044522572618e-11,
+  "version": "4.1",
+  "grupo": "8b-transferencia-base",
+  "archivo": "resultados/8b-transferencia-base/224082564.toem.md"
+ },
+ "e6a02fde6d1494d7": {
+  "prediction_short": "Human",
+  "headline": "Human Written",
+  "fraction_ai": 4.092872964891504e-33,
+  "fraction_ai_assisted": 7.124721913349734e-36,
+  "fraction_human": 1.0,
+  "version": "4.1",
+  "grupo": "8b-transferencia-uniforme",
+  "archivo": "resultados/8b-transferencia-uniforme/137185649.old-mans-journey.md"
+ },
+ "a7b48861d63caf42": {
+  "prediction_short": "Human",
+  "headline": "Human Written",
+  "fraction_ai": 1.2938384902896041e-39,
+  "fraction_ai_assisted": 0.0,
+  "fraction_human": 1.0,
+  "version": "4.1",
+  "grupo": "8b-transferencia-uniforme",
+  "archivo": "resultados/8b-transferencia-uniforme/139617786.the-callisto-protocol.md"
+ },
+ "c8e9909a2e8eb024": {
+  "prediction_short": "Human",
+  "headline": "Human Written",
+  "fraction_ai": 0.0,
+  "fraction_ai_assisted": 0.0,
+  "fraction_human": 1.0,
+  "version": "4.1",
+  "grupo": "8b-transferencia-uniforme",
+  "archivo": "resultados/8b-transferencia-uniforme/145710998.alan-wake-ii.md"
+ },
+ "fae38e4e8cd83acd": {
+  "prediction_short": "Human",
+  "headline": "Human Written",
+  "fraction_ai": 2.471219213052627e-37,
+  "fraction_ai_assisted": 6.181632890414942e-37,
+  "fraction_human": 1.0,
+  "version": "4.1",
+  "grupo": "8b-transferencia-uniforme",
+  "archivo": "resultados/8b-transferencia-uniforme/150815701.sable.md"
+ },
+ "0d359ae84bd1e533": {
+  "prediction_short": "Human",
+  "headline": "Human Written",
+  "fraction_ai": 7.209334978213788e-35,
+  "fraction_ai_assisted": 1.9380142520086043e-29,
+  "fraction_human": 1.0,
+  "version": "4.1",
+  "grupo": "8b-transferencia-uniforme",
+  "archivo": "resultados/8b-transferencia-uniforme/158741599.dave-the-diver.md"
+ },
+ "e49e65d6eee42cf9": {
+  "prediction_short": "Human",
+  "headline": "Human Written",
+  "fraction_ai": 4.721086841309225e-29,
+  "fraction_ai_assisted": 4.9417055171439396e-33,
+  "fraction_human": 1.0,
+  "version": "4.1",
+  "grupo": "8b-transferencia-uniforme",
+  "archivo": "resultados/8b-transferencia-uniforme/166041119.blue-prince.md"
+ },
+ "cb504429d829fb4b": {
+  "prediction_short": "Human",
+  "headline": "Human Written",
+  "fraction_ai": 2.484479555670126e-24,
+  "fraction_ai_assisted": 5.324113954416841e-25,
+  "fraction_human": 1.0,
+  "version": "4.1",
+  "grupo": "8b-transferencia-uniforme",
+  "archivo": "resultados/8b-transferencia-uniforme/181011036.spirit-of-the-north-1-and-2.md"
+ },
+ "2afd384706bbed54": {
+  "prediction_short": "Human",
+  "headline": "Human Written",
+  "fraction_ai": 2.1833042406590976e-28,
+  "fraction_ai_assisted": 2.933514199493999e-29,
+  "fraction_human": 1.0,
+  "version": "4.1",
+  "grupo": "8b-transferencia-uniforme",
+  "archivo": "resultados/8b-transferencia-uniforme/224082564.toem.md"
+ },
+ "34a74f17edf71a61": {
+  "prediction_short": "AI",
+  "headline": "AI Detected",
+  "fraction_ai": 0.9283106327056885,
+  "fraction_ai_assisted": 4.3564127305550926e-10,
+  "fraction_human": 0.07168934494256973,
+  "version": "4.1",
+  "grupo": "claude-borrador-pipeline",
+  "archivo": "resultados/claude-borrador-pipeline/control-resonant.md"
+ },
+ "44bb0b2df656859c": {
+  "prediction_short": "AI",
+  "headline": "AI Detected",
+  "fraction_ai": 0.8444580435752869,
+  "fraction_ai_assisted": 0.07771778851747513,
+  "fraction_human": 0.0778241753578186,
+  "version": "4.1",
+  "grupo": "claude-borrador-pipeline",
+  "archivo": "resultados/claude-borrador-pipeline/squirrel-with-a-gun.md"
+ },
+ "5b50796bf65c9880": {
+  "prediction_short": "Mixed",
+  "headline": "AI Detected",
+  "fraction_ai": 0.6718347072601318,
+  "fraction_ai_assisted": 1.27365961998465e-16,
+  "fraction_human": 0.32816529273986816,
+  "version": "4.1",
+  "grupo": "claude-control-pipeline",
+  "archivo": "resultados/claude-control-pipeline/control-resonant.md"
+ },
+ "ab7d0c12eb4a2bf1": {
+  "prediction_short": "AI",
+  "headline": "AI Detected",
+  "fraction_ai": 0.9235109686851501,
+  "fraction_ai_assisted": 3.477494958659122e-10,
+  "fraction_human": 0.07648903131484985,
+  "version": "4.1",
+  "grupo": "claude-control-pipeline",
+  "archivo": "resultados/claude-control-pipeline/squirrel-with-a-gun.md"
  }
 }

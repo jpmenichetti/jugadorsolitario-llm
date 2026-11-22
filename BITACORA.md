@@ -498,3 +498,25 @@ Idea de Juan Pablo: medir el 8B *sin* entrenar, con el mismo pedido y los mismos
 | Control de Claude | 0,88 | 0,93 |
 
 Los dos tocan poco el borrador, y el modelo entrenado cambia algo más que Claude. En los juegos nuevos el modelo se comporta igual que en la prueba (0,81): no inventa y se limita a cambiar la voz.
+
+## 2026-11-22: Fase 3: detección con Pangram (cierre del experimento)
+
+| Grupo | Textos | % IA promedio | Clasificación |
+|---|---|---|---|
+| Tus originales | 8 | 0% | 8 Human |
+| 8B sin entrenar reescribiendo borradores | 8 | 96% | 7 AI, 1 Mixed |
+| **8B entrenado reescribiendo borradores** | 8 | **0%** | **8 Human** |
+| Borrador neutro de Claude (juegos nuevos) | 2 | 89% | 2 AI |
+| **Modelo 8B sobre ese borrador** | 2 | **3%** | **2 Human** |
+| Modelo 8B + verificación de Claude | 2 | 4% | 2 Human |
+| Control: Claude imitando el estilo | 2 | 80% | 1 AI, 1 Mixed |
+| *(Ref. fase 2b) 8B entrenado con fichas* | 8 | 56% | 2 Human, 2 Mixed, 4 AI |
+
+**Conclusiones:**
+- **La reescritura entrenada engaña al detector de forma consistente.** Los 8 textos de prueba y los 2 juegos nuevos salen "Human". En la fase 2b (escribir desde una ficha) solo 2 de 8 lo lograban.
+- **Basta con cambiar poco.** El modelo conserva ~82% de las palabras del borrador de Claude y aun así lleva el % de IA de 89% a 3%. El detector no mira *qué* se dice (los hechos y la estructura son los de Claude), sino *cómo*: muletillas, primera persona plural, cursivas, comillas en términos en inglés e incluso las pequeñas faltas de ortografía. Esas marcas idiosincráticas pesan más que el 82% de texto de IA que queda debajo.
+- **Imitar el estilo con instrucciones no alcanza.** Claude, imitando el estilo a partir de ejemplos, sigue detectado (80%). Claude edita más "limpio" y conserva más del borrador (88% a 93% en común); no reproduce las irregularidades del autor. El ajuste fino aprende justamente eso.
+- **La verificación no lo arruina.** Corregir ortografía y datos deja el resultado en 4% (Human). La corrección mínima es compatible con conservar la "huella humana".
+- **El modelo sin entrenar no sirve:** reescribiendo el mismo borrador queda en 96% IA. El efecto viene del entrenamiento, como ya se había visto en la fase 2b.
+- **Precauciones:** solo hay 2 textos en el pipeline real y una generación por artículo, y es un único detector (Pangram, versión de noviembre de 2026). Los borradores de prueba se escribieron a partir de los originales, así que conservan parte del texto humano (0,61 en común), aunque los juegos nuevos no tienen ese origen y dan el mismo resultado.
+- **Reflexión:** el resultado muestra lo frágiles que son los detectores de IA frente a un modelo pequeño ajustado con textos de una persona. Con un Mac, 121 artículos y 80 minutos de entrenamiento se logra un texto que el detector atribuye a un humano. Es un aprendizaje sobre los límites de la detección, no una recomendación de uso: el proyecto no busca publicar artículos con el nombre del autor.
