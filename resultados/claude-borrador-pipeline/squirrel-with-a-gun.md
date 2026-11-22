@@ -1,0 +1,15 @@
+Squirrel with a Gun es un juego de acción y plataformas en 3D desarrollado por el pequeño estudio independiente Dee Dee Creations y publicado por Maximum Entertainment. Se lanzó el 29 de agosto de 2024 en PC, PlayStation 5 y Xbox Series X|S.
+
+La premisa está en el título: el protagonista es una ardilla con un arma. La aventura comienza en una instalación subterránea secreta, donde la ardilla se traga una bellota dorada y activa una alarma. Aparece un agente de traje, la ardilla toma una pistola y comienza la huida. El objetivo es escapar de la instalación y derrotar a los agentes que la persiguen. La historia apenas se explica: los antagonistas aparecen como jefes que insinúan una trama, pero sin aclararla.
+
+El juego tiene dos zonas principales que funcionan como mundos abiertos pequeños, entre ellas un barrio suburbano lleno de casas, patios y objetos de tamaño humano que, para una ardilla, se convierten en grandes escenarios de plataformas. Su principal referencia es Goat Simulator: un sandbox absurdo en el que gran parte de la diversión consiste en causar caos.
+
+La mecánica central combina saltos y disparos. Disparar en pleno salto impulsa a la ardilla y le da altura o distancia adicional, lo que es clave para recorrer los escenarios y resolver acertijos. Cada arma cambia el movimiento: las ametralladoras uzi permiten flotar en el aire y las escopetas dan un impulso vertical mayor. Se comienza con una pistola y luego se desbloquean uzis, escopetas, lanzagranadas y bazucas; para obtener cada arma hay que quitársela primero a un enemigo y luego comprarla en puntos específicos de los niveles. Hay apuntado automático, lo que simplifica los disparos incluso al conducir.
+
+Las bellotas doradas sirven para la progresión y desbloquean habilidades, como un auto a control remoto para desplazarse por los niveles. Las bellotas comunes funcionan como moneda. También hay piezas de disfraz, algunas con efectos en la jugabilidad, y fichas que mejoran la recarga. Muchos coleccionables están escondidos en pequeños desafíos opcionales, como cruzar una sala de estar cubierta de lava o eliminar una cantidad determinada de enemigos, y en cada zona hay mástiles con banderas que registran el progreso.
+
+El humor es absurdo y basado en memes, y la música de los combates contra jefes, con influencias del nu metal de principios de los 2000 y de Babymetal, es uno de sus puntos destacados. El diseño de niveles también recibió buenos comentarios.
+
+La recepción de la crítica fue mixta. IGN le dio un 6 de 10 y lo describió como un sandbox divertido pero superficial; GameSpot, un 4 de 10. Las críticas más repetidas son los controles de salto imprecisos, la escasa variedad de enemigos (los agentes son casi todos iguales), algunos errores técnicos y su corta duración: la historia dura entre cinco y seis horas, y completarlo al 100% toma unas ocho. En cambio, otros medios destacaron que es mucho más divertido de lo que su premisa de broma hace esperar.
+
+Squirrel with a Gun está disponible en PC (Steam, Epic Games Store y GOG), PlayStation 5 y Xbox Series X|S, a un precio de alrededor de USD 20.

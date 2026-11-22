@@ -40,13 +40,19 @@ def evaluar(texto, key):
 
 cache = json.load(open(CACHE)) if os.path.exists(CACHE) else {}
 archivos = [("original", f) for f in sorted(glob.glob("datos/prueba/originales/*.md"))]
-archivos += [(os.path.basename(os.path.dirname(f)), f) for f in sorted(glob.glob("resultados/*/*.md"))]
+# Opcional: nombres de carpetas de resultados/ a evaluar (ej. 8b-fichas-largo-uniforme). Sin nombres, evalúa todas.
+CARPETAS = sys.argv[1:]
+for c in CARPETAS:
+    if not glob.glob(f"resultados/{c}/*.md"): sys.exit(f"No hay textos en resultados/{c}/")
+archivos += [(os.path.basename(os.path.dirname(f)), f) for f in sorted(glob.glob("resultados/*/*.md"))
+             if not CARPETAS or os.path.basename(os.path.dirname(f)) in CARPETAS]
 pendientes = []
 for grupo, f in archivos:
     t = cuerpo(f); h = hashlib.sha256(t.encode()).hexdigest()[:16]
     if h not in cache or "error" in cache[h]: pendientes.append((grupo, f, t, h))
 palabras = sum(len(t.split()) for *_, t, _ in pendientes)
-print(f"Textos ya evaluados: {len(archivos) - len(pendientes)} | por evaluar: {len(pendientes)} (~{palabras:,} palabras, ~US${palabras/100*COSTO_100_PALABRAS:.2f})".replace(",", "."))
+print(f"Textos ya evaluados: {len(archivos) - len(pendientes)} | por evaluar: {len(pendientes)} "
+      f"(~{format(palabras, ',').replace(',', '.')} palabras, costo estimado ~US$ {palabras/100*COSTO_100_PALABRAS:.2f})")
 if not pendientes: sys.exit("Nada nuevo que evaluar.")
 if input("¿Continuar? (s/n): ").strip().lower() != "s": sys.exit("Cancelado.")
 key = clave()

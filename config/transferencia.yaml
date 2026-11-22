@@ -1,0 +1,21 @@
+# Configuración para la fase 3 (transferencia de estilo: borrador neutro -> artículo con tu voz).
+# Cada ejemplo trae DOS textos (borrador + original), por eso es el doble de largo que en fases anteriores.
+fine_tune_type: lora
+train: true
+mask_prompt: true          # el modelo solo aprende de tu artículo, no del borrador
+batch_size: 1              # ejemplos largos: de a uno para no agotar la memoria del 8B
+grad_accumulation_steps: 4 # pero actualiza cada 4 ejemplos (mismo "lote efectivo" que antes)
+iters: 120                 # ~1 época (121 ejemplos), igual que en las fases anteriores
+learning_rate: 5.0e-5
+num_layers: 16
+max_seq_length: 5120       # el par más largo (Death Stranding) ronda los 4.300 tokens
+grad_checkpoint: true
+steps_per_report: 10
+steps_per_eval: 30
+val_batches: -1
+save_every: 30
+seed: 42
+lora_parameters:
+  rank: 16
+  scale: 20.0
+  dropout: 0.05

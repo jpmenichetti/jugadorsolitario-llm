@@ -329,3 +329,172 @@ En ninguna corrida hubo sobreajuste dentro de la época: todas mejoraron hasta l
 3. **Qué capas se adaptan importa más que cuán grande es el adaptador.** Con 8 capas empeora y con las 36 mejora. El rank 32 (29 M parámetros) y las 36 capas (33 M) tienen un tamaño parecido, pero solo las 36 capas mejoran: importa *dónde* se ponen los parámetros, no *cuántos* hay. A cambio, entrenar las 36 capas toma un 50% más de tiempo.
 4. **El tamaño del modelo pesa más que todo lo demás.** El mejor ajuste de hiperparámetros movió el Val loss 0,02. Pasar de 4B a 8B lo movió 0,13, seis veces más.
 5. **Precaución estadística:** con solo 10 artículos de validación y una sola corrida por configuración, las diferencias menores a ~0,01 (lr 2e-5, rank 8) deben considerarse empates.
+
+## 2026-11-22: Entrenamiento 5 + generación, 4B fichas-largo-ponderado
+
+Misma configuración que el uniforme (60 iteraciones). Los 15 artículos con mejor tasa de apertura relativa aparecen dos veces (136 ejemplos). Con el mismo número de pasos, el modelo ve esos 15 dos veces y el resto en ~88% de una pasada.
+
+| Iteración | Val loss uniforme | Val loss ponderado |
+|---|---|---|
+| 1 | 2,403 | 2,403 |
+| 15 | 1,823 | 1,840 |
+| 30 | 1,771 | 1,784 |
+| 45 | 1,738 | 1,745 |
+| 60 | **1,725** | 1,740 |
+
+| Métrica (promedio) | Original | 4B uniforme | 4B ponderado |
+|---|---|---|---|
+| Palabras | 606 | 540 | 513 |
+| Párrafos | 10,4 | 10,2 | 9,1 |
+| Cursivas/negritas | 9,4 | 2,8 | 4,4 |
+| Vocabulario típico (por 1000) | 118 | 151 | 149 |
+| Apertura "Bienvenidos…" | 3 de 8 | 0 de 8 | 2 de 8 |
+
+**Lectura:**
+- El ponderado queda **levemente peor en Val loss** (+0,015), en todos los puntos de medición. Es casi un empate, pero va en la dirección esperada: dedicar pasos a repetir 15 artículos deja menos para el resto.
+- En los textos no hay una diferencia clara de calidad. Usa algo más de cursivas y la apertura "Bienvenidos…", pero con 8 textos eso puede ser azar. Mantiene los mismos problemas (inventa detalles como "un objetivo que nunca será alcanzado" y recicla la ficha).
+- **Aprendizaje:** ponderar datos solo sirve si la señal que define el peso es buena. Aquí la métrica (tasa de apertura con audiencias de 2 a 60 personas) era ruidosa y mide el interés por el tema del correo, no la calidad de la escritura. Por eso no aportó nada medible.
+
+## 2026-11-22: Pangram sobre el 8B fichas-largo-uniforme
+
+Costo: ~US$ 2,05 (8 textos, ~4.100 palabras).
+
+| Artículo | Palabras | Pangram | % IA |
+|---|---|---|---|
+| Old Man's Journey | 300 | **Human** | 0% |
+| Sable | 341 | **Human** | 0% |
+| TOEM | 484 | Mixed | 20% |
+| Spirit of the North | 873 | Mixed | 43% |
+| The Callisto Protocol | 358 | AI | 87% |
+| Alan Wake II | 582 | AI | 100% |
+| Dave the Diver | 650 | AI | 100% |
+| Blue Prince | 548 | AI | 100% |
+| **Total** | | **2 Human, 2 Mixed, 4 AI** | **~56% promedio** |
+
+**Sorpresa:** la predicción (repetir 100% IA, como en la fase 1) **fue incorrecta**. Por primera vez, textos generados engañan al detector, total o parcialmente, en la mitad de los casos.
+
+**Lectura con precaución:**
+- No se puede atribuir el cambio solo al tamaño del modelo. Entre la fase 1 (4B, 100% IA) y este resultado cambiaron varias cosas a la vez: el modelo (4B → 8B), el pedido (ficha + largo) y los ajustes de generación (temperatura 0,6 y min_p). Para aislar el efecto del tamaño habría que evaluar también el 4B fichas-largo (~US$ 2).
+- Los dos clasificados como humanos son de los textos más cortos (300 y 341 palabras), y un texto corto le da menos evidencia al detector. Pero Callisto (358 palabras) salió 87% IA, así que el largo no lo explica todo. Con 8 textos no se puede concluir un patrón.
+- No tiene relación con la apertura copiada "Bienvenidos…": ninguno de los dos "Human" la usa.
+
+**Aprendizaje:** los detectores tampoco son infalibles con texto generado. Un modelo más grande, entrenado con el estilo del autor y con contenido real como base, empieza a parecer humano para un detector comercial. Y una predicción razonable puede fallar: por eso se mide.
+
+## 2026-11-22: Pangram sobre el 8B sin entrenar (fichas + largo): aislar el efecto del entrenamiento
+
+Idea de Juan Pablo: medir el 8B *sin* entrenar, con el mismo pedido y los mismos ajustes de generación, para saber si es el ajuste fino el que engaña al detector. Costo: ~US$ 2,4.
+
+| Artículo | Palabras (sin entrenar) | 8B sin entrenar | 8B entrenado |
+|---|---|---|---|
+| Old Man's Journey | 313 | AI 100% | **Human 0%** |
+| Sable | 336 | AI 100% | **Human 0%** |
+| TOEM | 598 | Mixed 60% | Mixed 20% |
+| Spirit of the North | 838 | AI 100% | Mixed 43% |
+| The Callisto Protocol | 335 | AI 100% | AI 87% |
+| Alan Wake II | 601 | AI 100% | AI 100% |
+| Dave the Diver | 579 | AI 100% | AI 100% |
+| Blue Prince | 639 | AI 100% | AI 100% |
+| **Promedio % IA** | | **95%** | **56%** |
+
+**Conclusión:** el efecto viene del **entrenamiento**. Con el mismo modelo, el mismo pedido y los mismos ajustes, el 8B sin entrenar se detecta casi siempre (7 AI y 1 Mixed). El entrenado reduce la detección promedio de 95% a 56%, y en 5 de los 8 artículos el % de IA baja.
+
+- **Descarta la hipótesis del largo:** Old Man's Journey y Sable sin entrenar tienen casi el mismo largo (313 y 336 palabras) y salen 100% IA. Lo que los vuelve "humanos" es el entrenamiento, no que sean cortos.
+- Combinado con la fase 1 (4B entrenado, sin ficha: 100% IA): el entrenamiento por sí solo no bastó en el 4B. Se necesitó la combinación de modelo más grande + entrenamiento (+ ficha/ajustes).
+- **Precauciones:** son 8 textos y una sola generación por artículo. La generación tiene azar, así que repetirla podría cambiar algunos casos. El resultado es una señal clara, no una medición definitiva.
+- **Aprendizaje:** los detectores comerciales reconocen las "huellas" estadísticas típicas de un modelo base (en el 8B sin entrenar también se ven el estilo genérico, las negritas y los subtítulos). El ajuste fino con textos humanos desplaza esas huellas hacia las del autor, lo bastante como para confundir al detector en parte de los casos.
+
+## 2026-11-22: Fase 3, transferencia de estilo: plan y decisiones
+
+**Plan:** (1) Claude escribe una versión neutra de cada artículo, con el mismo contenido y estilo genérico. (2) Se entrena un modelo de reescritura con los pares "neutro → original". (3) Se evalúa con los 8 artículos de prueba, que tienen respuesta correcta (el original) y permiten contar datos perdidos o deformados. (4) Pipeline real con juegos nuevos: Claude investiga y escribe, el modelo reescribe, Claude verifica con cambios mínimos. Hay un control: Claude imita el estilo con 5 artículos de ejemplo, sin entrenamiento. (5) Pangram al final.
+
+**Decisiones de Juan Pablo:**
+1. La versión neutra la escribe **Claude**.
+2. Modelo: **Qwen3-8B**.
+3. Juegos nuevos para el pipeline: **"Control Resonant"** y **"Squirrel with a Gun"**.
+4. Presupuesto de Pangram: **US$ 6 a 8**.
+
+## 2026-11-22: Fase 3, etapas 1 y 2: borradores neutros y datos de entrenamiento
+
+**Etapa 1, versiones neutras (Claude):** se escribieron las 139 versiones neutras, guardadas en `datos/neutros.json`. Reglas: mismo contenido y mismo orden, sin agregar ni quitar datos; registro genérico en tercera persona; sin el párrafo "Bienvenidos…" ni muletillas; las anécdotas en primera persona pasan a frases impersonales ("después de 50 horas de juego…"); las opiniones se conservan como evaluaciones neutras ("es muy recomendable").
+- Totalizan ~62.700 palabras, contra ~77.000 de los originales. En promedio cada borrador mide el 82% de su original (rango 66% a 96%). La diferencia se explica por lo que se quitó: saludo, muletillas, exclamaciones y digresiones personales.
+- **Corrección durante la revisión:** en dos borradores (los de Death Stranding 2) se coló un dato inventado y se suavizaron cifras exactas ("116 horas" pasó a "más de 100"). Ambos se corrigieron para respetar la regla de no agregar ni quitar datos. Es un recordatorio útil: incluso al escribir el borrador "neutro", quien redacta tiende a redondear o adornar.
+
+**Etapa 2, datos de entrenamiento** (`datos/transferencia-uniforme/`):
+- Cada ejemplo = *system* ("reescribe con tu voz conservando todos los datos") + *user* ("Reescribe con tu estilo este borrador sobre «X»: …borrador…") + *assistant* (tu artículo original).
+- Mismo reparto de siempre: 121 de entrenamiento, 10 de validación y los mismos 8 de prueba (`datos/prueba/prompts_transferencia.jsonl`). Así los resultados se pueden comparar con las fases anteriores.
+- **Configuración propia** (`config/transferencia.yaml`): ahora cada ejemplo trae dos textos, así que es el doble de largo. El par más largo (Death Stranding Director's Cut, ~2.350 palabras) ronda los 4.300 tokens, por lo que `max_seq_length` sube de 4.096 a 5.120. Para que el 8B no se quede sin memoria se usa `batch_size: 1` con `grad_accumulation_steps: 4`. `iters: 120` equivale a ~1 época, como en las fases anteriores. Se evalúa y guarda cada 30 iteraciones.
+- Ajustes a los scripts: `3_entrenar.sh` usa `config/<fase>.yaml` si existe (si no, `base.yaml`); `5_comparar.sh` y `comparar.py` aceptan cualquier fase (`bash 5_comparar.sh transferencia`).
+- Aquí `mask_prompt` es clave: el modelo solo aprende a *producir* el artículo con tu voz, no a copiar el borrador.
+
+## 2026-11-22: Fase 3: línea base, inicio del entrenamiento y borradores de los juegos nuevos
+
+**Línea base (8B sin entrenar reescribiendo los 8 borradores):** está en `resultados/8b-transferencia-base/`. Los largos quedan cerca de los borradores (357 a 678 palabras), pero el estilo sigue siendo genérico: agrega un título en negrita, tutea al lector ("entender quién eres") y no usa tus recursos. En Sable cambia el género de la protagonista en una frase ("lo lleva") y comete errores de ortografía ("deserto"). Queda como referencia del "antes".
+
+**Entrenamiento iniciado** (`bash 3_entrenar.sh transferencia-uniforme 8b`, 09:09). Val loss inicial: **1,327**, mucho más baja que el 2,110 inicial de las fichas. Es lo esperable: ahora el modelo tiene todo el contenido en el borrador y solo le falta la voz, así que tu artículo le resulta mucho menos "sorpresivo". Por eso las cifras de pérdida de esta fase **no se pueden comparar** con las de fases anteriores. Cada evaluación tarda ~1,5 minutos.
+
+**Borradores de los juegos nuevos (pipeline real)**, escritos por Claude a partir de reseñas y tiendas, en el mismo estilo neutro que los 139 de entrenamiento:
+- `datos/pipeline/borrador_control-resonant.md` (589 palabras). Secuela de Control lanzada el 24-sep-2026: Dylan Faden, Manhattan dividido en siete zonas, combate cuerpo a cuerpo con el Aberrante, Resonantes y Fallas.
+- `datos/pipeline/borrador_squirrel-with-a-gun.md` (524 palabras). Lanzado el 29-ago-2024 por Dee Dee Creations: los disparos impulsan los saltos, las bellotas doradas y la crítica mixta.
+- Las fuentes están en `datos/pipeline/fuentes.md`, y los pedidos para el modelo en `datos/prueba/prompts_pipeline.jsonl`.
+- Ninguno de los dos juegos fue jugado: el borrador se basa solo en lo que dice la prensa. Es justamente el caso de uso que queremos probar, aunque el texto final no podrá tener anécdotas reales.
+
+**Entrenamiento 8B transferencia terminado** (09:09 a 10:30, ~80 min, ~35 tok/s, 109 mil tokens):
+
+| Iteración | 1 | 30 | 60 | 90 | 120 |
+|---|---|---|---|---|---|
+| Val loss | 1,327 | 0,914 | 0,877 | 0,846 | **0,834** |
+
+- La pérdida baja un 37% en total, pero casi todo ocurre en las primeras 30 iteraciones (31%). Después mejora de a poco. El modelo capta la voz muy rápido y luego afina detalles.
+- No hay sobreajuste: la pérdida de validación bajó en todas las mediciones y la de entrenamiento oscila en torno a 0,8 a 0,95, sin separarse. El mejor punto es el final (iteración 120), así que se usa el adaptador final, sin cambios.
+- Como la curva todavía bajaba, una segunda época podría mejorar un poco. La ganancia entre 90 y 120 ya era chica (0,012), así que no vale la pena repetir las ~80 min por ahora.
+
+## 2026-11-22: Fase 3: evaluación de las 8 reescrituras
+
+**Métricas de estilo** (`resultados/comparacion_transferencia.html`, promedio de los 8 artículos):
+
+| Métrica | Original | 8B sin entrenar | 8B entrenado |
+|---|---|---|---|
+| Palabras | 606 | 526 | 501 |
+| Palabras por oración | 22,4 | 20,0 | 20,2 |
+| Tu vocabulario típico (por 1000) | 118 | 107 | **121** |
+| Cursivas/negritas | 9,4 | 6,1 | 7,5 |
+
+**Parecido palabra a palabra** (secuencia de palabras en común, de 0 a 1, calculado por Claude):
+
+| Comparación | Promedio |
+|---|---|
+| Borrador neutro vs. original | 0,66 |
+| Sin entrenar vs. borrador | 0,33 |
+| **Entrenado vs. borrador** | **0,81** |
+| Sin entrenar vs. original | 0,26 |
+| Entrenado vs. original | 0,61 |
+
+**Lectura:**
+- **El modelo entrenado aprendió a editar poco.** Conserva el 81% del borrador y cambia sobre todo el "cómo se dice": pasa a primera persona plural ("encontraremos", "nuestro protagonista"), usa cierres tuyos ("Completamente recomendado", "Completa y absolutamente recomendado"), pone cursivas y negritas en los nombres y agrega comillas a los términos en inglés ("roguelike", "lore"). En cambio, el modelo sin entrenar reescribe todo (solo un 33% en común con el borrador) y por eso se aleja del contenido.
+- **Datos: fidelidad muy alta.** No se encontró ningún dato inventado en los 8 textos. Hay deformaciones menores: Dave the Diver pasa de "casi todas las mecánicas son opcionales" a "todas ellas son opcionales"; en Blue Prince se pierde que el protagonista es "heredero" y se omiten "monedas y gemas" en una enumeración; en Alan Wake II "el asesinato de Nightingale" pasa a "un asesinato relacionado al" ex agente.
+- **Errores de lenguaje** (como en fases anteriores, aunque menos): "personigo", "hilarosas", "parage", "articas", "opciónales", "grátis", "e extrañas", "el travesía". Además, agrega siempre un título "# Nombre" que tus artículos no tienen.
+- **Paradoja interesante:** la reescritura entrenada (0,61) se parece *menos* a tu original que el propio borrador (0,66). La razón es que el borrador se escribió a partir de tu artículo y conserva muchas de tus palabras exactas, mientras que el modelo cambia expresiones por otras que *suenan* a ti pero no son las que usaste. Las métricas de vocabulario típico confirman que el resultado sí se acerca a tu estilo en general.
+- **Advertencia de método:** como los borradores salieron de tus originales, conservan tu estructura (orden de párrafos, ritmo, temas). Esta prueba es **más fácil** que el caso real, donde el borrador lo escribe Claude desde cero. Eso es justamente lo que mide el pipeline con Control Resonant y Squirrel with a Gun.
+
+## 2026-11-22: Fase 3: pipeline real con juegos nuevos
+
+**Flujo:** Claude investiga y escribe un borrador neutro → el modelo 8B entrenado lo reescribe con la voz de Juan Pablo → Claude verifica contra el borrador y las fuentes, y corrige lo mínimo.
+
+**Revisión de datos** (`resultados/8b-pipeline/`):
+- **Control Resonant** (580 palabras): ningún dato inventado. Pierde uno: la tercera zona del mapa (la que exige habilidades avanzadas para recorrerla) se reemplaza por un "etc.". Errores menores: "si es" sin tilde, "la relación… son uno de los ejes" y "protagonista de control" en minúscula.
+- **Squirrel with a Gun** (522 palabras): ningún dato inventado. Hay una deformación: la ardilla pasa a ser "nuestra heroína", aunque la fuente (TheSixthAxis) habla de un macho. Probablemente lo deduce porque "ardilla" es femenino en español. Errores de lenguaje: "activa una alarmas", "barrio suburbanico", "nuestra pequeña heroe", "se encuentran", "Ademas", "criticas mas".
+- En ambos agrega el título "# Nombre", que se quitó.
+
+**Versión verificada** (`resultados/8b-pipeline-verificado/`): 5 cambios en Control Resonant (incluye restituir la zona perdida) y 12 en Squirrel with a Gun (la mayoría ortografía y el género del protagonista). Son correcciones de una línea; no hubo que reescribir nada.
+
+**Control: Claude imita el estilo** (`resultados/claude-control-pipeline/`). Claude reescribió los mismos borradores con el estilo de El Jugador Solitario, usando como referencia 5 artículos del entrenamiento (Dredge, Katana Zero, Thank Goodness You're Here!, The Alters, Hoa) y sin ajuste fino. *Limitación:* Claude ya había leído los 139 artículos al escribir los borradores neutros, así que no es un "pocos ejemplos" puro. Se quitó el párrafo "Bienvenidos…" para no favorecerlo frente a Pangram, porque es texto humano repetido.
+
+**Parecido con el borrador:**
+
+| Texto | Control Resonant | Squirrel with a Gun |
+|---|---|---|
+| Modelo 8B | 0,82 | 0,83 |
+| Modelo 8B verificado | 0,84 | 0,84 |
+| Control de Claude | 0,88 | 0,93 |
+
+Los dos tocan poco el borrador, y el modelo entrenado cambia algo más que Claude. En los juegos nuevos el modelo se comporta igual que en la prueba (0,81): no inventa y se limita a cambiar la voz.

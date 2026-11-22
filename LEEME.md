@@ -83,3 +83,11 @@ Para la versión ponderada usa `fichas-ponderado`, y para el modelo grande agreg
 4. Corre `bash 5_comparar.sh` (o `bash 5_comparar.sh fichas`).
 
 Solo se evalúan los textos nuevos o modificados; lo ya evaluado queda guardado en `resultados/deteccion_pangram.json`.
+
+## Fase 3: transferencia de estilo (reescribir un borrador con tu voz)
+El modelo recibe un borrador escrito en estilo neutro y lo reescribe como si fuera tuyo, sin agregar ni quitar datos.
+1. `bash 2_linea_base.sh 8b transferencia`: el "antes", con el 8B sin entrenar reescribiendo los 8 borradores (~30 min).
+2. `bash 3_entrenar.sh transferencia-uniforme 8b`: entrena (2 a 3 horas; ideal de noche, con el cargador conectado).
+3. `bash 4_generar.sh transferencia-uniforme 8b`: reescribe los 8 borradores de prueba.
+4. `bash 5_comparar.sh transferencia`: informe en el navegador.
+Los borradores neutros están en `datos/neutros.json` y la configuración en `config/transferencia.yaml`.
