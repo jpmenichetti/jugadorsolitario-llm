@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>El Jugador Solitario · LLM Personal</title>
+<style>
+  :root {
+    --fondo: #f6f1e7; --panel: #fffdf8; --tinta: #2b2620; --suave: #7a6f62; --linea: #e4dccd;
+    --acento: #b5532a; --acento-2: #8f3e1c; --verde: #2f7a4d; --verde-fondo: #dff1e4; --rojo-fondo: #f8dcd4;
+    --sombra: 0 1px 2px rgba(60,40,20,.06), 0 4px 16px rgba(60,40,20,.06);
+    --serif: "Iowan Old Style", "Palatino", Georgia, serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --fondo:#1d1a17; --panel:#26221e; --tinta:#ece4d8; --suave:#a89c8c; --linea:#3a342d;
+            --acento:#e0794a; --acento-2:#f0956b; --verde:#7fcf9b; --verde-fondo:#21392a; --rojo-fondo:#47271e; }
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body { margin: 0; background: var(--fondo); color: var(--tinta); font: 14px/1.5 var(--sans); display: flex; flex-direction: column; }
+  header { display: flex; align-items: center; gap: 14px; padding: 12px 22px; border-bottom: 1px solid var(--linea); }
+  header h1 { font: 600 19px var(--serif); margin: 0; letter-spacing: .2px; }
+  header h1 span { color: var(--suave); font-weight: 400; }
+  .estado { margin-left: auto; display: flex; align-items: center; gap: 8px; color: var(--suave); font-size: 13px; }
+  .punto { width: 9px; height: 9px; border-radius: 50%; background: var(--suave); }
+  .punto.listo { background: var(--verde); }
+  .punto.trabajando { background: var(--acento); animation: latir 1s infinite; }
+  @keyframes latir { 50% { opacity: .3; } }
+  button { font: inherit; cursor: pointer; border-radius: 8px; border: 1px solid var(--linea); background: var(--panel); color: var(--tinta); padding: 7px 13px; }
+  button:hover:not(:disabled) { border-color: var(--suave); }
+  button:disabled { opacity: .45; cursor: default; }
+  button.primario { background: var(--acento); border-color: var(--acento); color: #fff; font-weight: 600; padding: 10px 18px; }
+  button.primario:hover:not(:disabled) { background: var(--acento-2); }
+  button.fantasma { border-color: transparent; background: transparent; color: var(--suave); }
+  main { flex: 1; display: grid; grid-template-columns: minmax(340px, 440px) 1fr; gap: 18px; padding: 18px 22px; min-height: 0; }
+  .panel { background: var(--panel); border: 1px solid var(--linea); border-radius: 12px; box-shadow: var(--sombra); display: flex; flex-direction: column; min-height: 0; }
+  .entrada { padding: 16px; overflow: auto; gap: 14px; }
+  .modos { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--fondo); border-radius: 9px; padding: 3px; gap: 3px; }
+  .modos button { border: 0; background: transparent; padding: 7px 4px; font-size: 12.5px; color: var(--suave); }
+  .modos button.activo { background: var(--panel); color: var(--tinta); font-weight: 600; box-shadow: var(--sombra); }
+  .descripcion { color: var(--suave); font-size: 12.5px; margin: -4px 2px 0; }
+  label { display: block; font-weight: 600; font-size: 12.5px; margin-bottom: 5px; }
+  label small { font-weight: 400; color: var(--suave); }
+  input[type=text], input[type=number], textarea { width: 100%; font: inherit; color: var(--tinta); background: var(--fondo); border: 1px solid var(--linea); border-radius: 8px; padding: 8px 10px; }
+  input:focus, textarea:focus { outline: 2px solid color-mix(in srgb, var(--acento) 35%, transparent); border-color: var(--acento); }
+  textarea { resize: vertical; font: 14px/1.55 var(--serif); }
+  #borrador { min-height: 300px; }
+  #ficha { min-height: 220px; font: 13px/1.5 ui-monospace, Menlo, monospace; }
+  .fila { display: grid; grid-template-columns: 1fr 120px; gap: 10px; }
+  .oculto { display: none !important; }
+  details { border-top: 1px solid var(--linea); padding-top: 10px; }
+  summary { cursor: pointer; color: var(--suave); font-size: 13px; }
+  .ajustes { display: grid; gap: 12px; margin-top: 10px; }
+  .rango { display: flex; align-items: center; gap: 10px; }
+  .rango input { flex: 1; accent-color: var(--acento); }
+  .check { display: flex; gap: 8px; align-items: flex-start; font-weight: 400; }
+  .check input { accent-color: var(--acento); margin-top: 3px; }
+  .acciones-entrada { display: flex; gap: 8px; margin-top: auto; padding-top: 4px; }
+  .acciones-entrada .primario { flex: 1; }
+  .salida-cab { display: flex; align-items: center; gap: 6px; padding: 10px 14px; border-bottom: 1px solid var(--linea); }
+  .pestanas button { border: 0; background: transparent; color: var(--suave); padding: 6px 10px; }
+  .pestanas button.activo { color: var(--tinta); font-weight: 600; box-shadow: inset 0 -2px 0 var(--acento); border-radius: 0; }
+  .salida-cab .der { margin-left: auto; display: flex; gap: 6px; }
+  .texto { flex: 1; overflow: auto; padding: 26px 36px 40px; font: 17px/1.7 var(--serif); }
+  .texto .hoja { max-width: 700px; margin: 0 auto; }
+  .texto h1, .texto h2, .texto h3 { font-family: var(--serif); line-height: 1.25; }
+  .texto p { margin: 0 0 1em; }
+  .vacio { color: var(--suave); text-align: center; margin-top: 18vh; font: 15px/1.6 var(--sans); }
+  .vacio b { display: block; font: 600 20px var(--serif); color: var(--tinta); margin-bottom: 6px; }
+  .cursor::after { content: "▍"; color: var(--acento); animation: latir 1s infinite; }
+  ins { background: var(--verde-fondo); text-decoration: none; border-radius: 3px; padding: 0 1px; }
+  del { background: var(--rojo-fondo); color: var(--suave); border-radius: 3px; padding: 0 1px; }
+  .leyenda { font: 12.5px var(--sans); color: var(--suave); margin-bottom: 16px; }
+  .stats { display: flex; flex-wrap: wrap; gap: 6px 18px; padding: 10px 16px; border-top: 1px solid var(--linea); color: var(--suave); font-size: 12.5px; min-height: 40px; align-items: center; }
+  .stats b { color: var(--tinta); font-weight: 600; }
+  .aviso { background: color-mix(in srgb, var(--acento) 12%, var(--panel)); border: 1px solid color-mix(in srgb, var(--acento) 30%, transparent); color: var(--tinta); padding: 8px 12px; border-radius: 8px; font-size: 13px; margin: 10px 16px 0; }
+  .cuenta { color: var(--suave); font-size: 12px; text-align: right; margin-top: 3px; }
+  dialog { border: 1px solid var(--linea); border-radius: 12px; background: var(--panel); color: var(--tinta); padding: 0; width: min(640px, 92vw); box-shadow: 0 20px 60px rgba(0,0,0,.25); }
+  dialog::backdrop { background: rgba(30,20,10,.35); }
+  .dlg-cab { display: flex; align-items: center; padding: 14px 18px; border-bottom: 1px solid var(--linea); }
+  .dlg-cab h2 { margin: 0; font: 600 17px var(--serif); }
+  .dlg-cab button { margin-left: auto; }
+  .lista { max-height: 60vh; overflow: auto; }
+  .item { display: block; width: 100%; text-align: left; border: 0; border-bottom: 1px solid var(--linea); border-radius: 0; padding: 11px 18px; background: transparent; }
+  .item:hover { background: var(--fondo); }
+  .item .t { font-weight: 600; }
+  .item .m { color: var(--suave); font-size: 12.5px; }
+  .toast { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%); background: var(--tinta); color: var(--panel); padding: 9px 16px; border-radius: 8px; font-size: 13px; opacity: 0; transition: opacity .2s; pointer-events: none; }
+  .toast.ver { opacity: 1; }
+  @media (max-width: 860px) { main { grid-template-columns: 1fr; } .texto { min-height: 60vh; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>El Jugador Solitario <span>· LLM Personal</span></h1>
+  <div class="estado"><div class="punto" id="punto"></div><span id="estado">Conectando…</span></div>
+  <button id="btnHistorial">Historial</button>
+  <button class="fantasma" id="btnSalir" title="Cierra la app y libera la memoria del modelo">Salir</button>
+</header>
+
+<main>
+  <section class="panel entrada">
+    <div class="modos" id="modos">
+      <button data-modo="reescribir" class="activo">Reescribir borrador</button>
+      <button data-modo="ficha">Desde ficha</button>
+      <button data-modo="libre">Solo título</button>
+    </div>
+    <p class="descripcion" id="descripcion"></p>
+
+    <div class="fila" id="filaTitulo">
+      <div><label for="titulo">Juego</label><input type="text" id="titulo" placeholder="Ej.: Control Resonant"></div>
+      <div class="campo-largo"><label for="largo">Largo <small>(palabras)</small></label><input type="number" id="largo" min="200" max="2000" step="50" placeholder="700"></div>
+    </div>
+    <div class="campo-sub"><label for="subtitulo">Subtítulo <small>(opcional)</small></label><input type="text" id="subtitulo" placeholder="Una frase que resuma el artículo"></div>
+
+    <div class="campo-borrador">
+      <label for="borrador">Borrador neutro <small>— con todos los datos; el modelo cambia la voz, no el contenido</small></label>
+      <textarea id="borrador" placeholder="Pega aquí el borrador en estilo neutro, en tercera persona y sin saludo. Por ejemplo, uno escrito por Claude con datos del juego."></textarea>
+      <div class="cuenta" id="cuentaBorrador">0 palabras</div>
+    </div>
+
+    <div class="campo-ficha">
+      <label for="ficha">Ficha del juego</label>
+      <textarea id="ficha" placeholder="Estudio: …  Año: …
+Género: …
+Premisa: …
+Destacados: …; …; …
+Opinión: …
+Duración: …  Plataformas: …
+Veredicto: …"></textarea>
+    </div>
+
+    <details>
+      <summary>Ajustes</summary>
+      <div class="ajustes">
+        <div>
+          <label>Temperatura <small>— más baja, más fiel y predecible; más alta, más creativa</small></label>
+          <div class="rango"><input type="range" id="temperatura" min="0.1" max="1.2" step="0.05" value="0.6"><b id="valTemp">0,60</b></div>
+        </div>
+        <label class="check"><input type="checkbox" id="sinEntrenar">
+          <span>Usar el modelo <b>sin entrenar</b> <small>— para comparar el antes y el después con la misma entrada</small></span></label>
+      </div>
+    </details>
+
+    <div class="acciones-entrada">
+      <button class="primario" id="btnGenerar">Generar</button>
+      <button id="btnDetener" class="oculto">Detener</button>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="salida-cab">
+      <div class="pestanas" id="pestanas">
+        <button data-vista="texto" class="activo">Artículo</button>
+        <button data-vista="cambios" id="pestCambios">Cambios vs. borrador</button>
+        <button data-vista="plano">Markdown</button>
+      </div>
+      <div class="der">
+        <button id="btnCopiar" disabled>Copiar</button>
+        <button id="btnGuardar" disabled>Guardar</button>
+      </div>
+    </div>
+    <div id="avisos"></div>
+    <div class="texto" id="salida"><div class="hoja"><div class="vacio"><b>Aún no hay texto</b>Completa la entrada de la izquierda y pulsa <i>Generar</i>.<br>El texto aparecerá aquí a medida que el modelo lo escribe.</div></div></div>
+    <div class="stats" id="stats"></div>
+  </section>
+</main>
+
+<dialog id="dlgHistorial">
+  <div class="dlg-cab"><h2>Textos guardados</h2><button class="fantasma" onclick="this.closest('dialog').close()">Cerrar</button></div>
+  <div class="lista" id="listaHistorial"></div>
+</dialog>
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const NOMBRE_MODO = { reescribir: "Reescribir borrador", ficha: "Desde ficha", libre: "Solo título" };
+let info = null, modo = "reescribir", vista = "texto", generando = false;
+let resultado = null;      // { texto, stats, entrada }
+let enCurso = "";          // texto mientras se genera
+
+// ---------- utilidades ----------
+const esc = s => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const num = (x, d = 2) => x == null ? "–" : x.toLocaleString("es-CL", { minimumFractionDigits: d, maximumFractionDigits: d });
+const contar = t => (t.trim().match(/\S+/g) || []).length;
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("ver"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("ver"), 2200); }
+
+function enLinea(s) {
+  return esc(s)
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>')
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+    .replace(/(^|[^*])\*([^*\n]+)\*/g, "$1<em>$2</em>")
+    .replace(/(^|\W)_([^_\n]+)_(?=\W|$)/g, "$1<em>$2</em>");
+}
+function markdown(t) {
+  return t.split(/\n{2,}/).map(b => {
+    const h = b.match(/^(#{1,3})\s+(.*)/);
+    if (h) return `<h${h[1].length + 1}>${enLinea(h[2])}</h${h[1].length + 1}>`;
+    if (/^\s*[-*]\s/.test(b)) return "<ul>" + b.split("\n").map(l => `<li>${enLinea(l.replace(/^\s*[-*]\s/, ""))}</li>`).join("") + "</ul>";
+    if (/^>\s?/.test(b)) return `<blockquote>${enLinea(b.replace(/^>\s?/gm, ""))}</blockquote>`;
+    return `<p>${enLinea(b).replace(/\n/g, "<br>")}</p>`;
+  }).join("");
+}
+
+// Diferencias palabra a palabra (LCS) entre el borrador y el resultado.
+function tokens(t) { return t.replace(/\n{2,}/g, " ¶ ").split(/\s+/).filter(Boolean); }
+const norm = w => w.toLowerCase().replace(/[*_«»"“”'.,;:!?¡¿()\[\]]/g, "");
+function diferencias(a, b) {
+  const A = tokens(a), B = tokens(b), n = A.length, m = B.length;
+  if (n * m > 9e6) return null;
+  const An = A.map(norm), Bn = B.map(norm), L = new Uint16Array((n + 1) * (m + 1)), W = m + 1;
+  for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--)
+    L[i * W + j] = An[i] === Bn[j] ? L[(i + 1) * W + j + 1] + 1 : Math.max(L[(i + 1) * W + j], L[i * W + j + 1]);
+  const ops = []; let i = 0, j = 0;
+  while (i < n || j < m) {
+    if (i < n && j < m && An[i] === Bn[j]) { ops.push(["=", B[j]]); i++; j++; }
+    else if (j < m && (i === n || L[i * W + j + 1] >= L[(i + 1) * W + j])) { ops.push(["+", B[j]]); j++; }
+    else { ops.push(["-", A[i]]); i++; }
+  }
+  let html = "<p>", grupo = null, buf = [];
+  const vaciar = () => { if (buf.length) html += (grupo === "=" ? esc(buf.join(" ")) : `<${grupo === "+" ? "ins" : "del"}>${esc(buf.join(" "))}</${grupo === "+" ? "ins" : "del"}>`) + " "; buf = []; };
+  for (const [op, w] of ops) {
+    if (w === "¶") { if (op === "-") continue; vaciar(); grupo = null; html += "</p><p>"; continue; }
+    if (op !== grupo) { vaciar(); grupo = op; }
+    buf.push(w);
+  }
+  vaciar();
+  return html + "</p>";
+}
+
+// ---------- interfaz ----------
+function aplicarModo(m) {
+  modo = m;
+  document.querySelectorAll("#modos button").forEach(b => b.classList.toggle("activo", b.dataset.modo === m));
+  const d = info?.modos?.[m];
+  $("#descripcion").textContent = d ? d.descripcion + (d.disponible ? "" : " ⚠️ No encontré este adaptador en la carpeta adaptadores/.") : "";
+  document.querySelector(".campo-borrador").classList.toggle("oculto", m !== "reescribir");
+  document.querySelector(".campo-ficha").classList.toggle("oculto", m !== "ficha");
+  document.querySelector(".campo-sub").classList.toggle("oculto", m === "reescribir");
+  document.querySelector(".campo-largo").classList.toggle("oculto", m !== "ficha");
+  $("#filaTitulo").style.gridTemplateColumns = m === "ficha" ? "1fr 120px" : "1fr";
+  $("#pestCambios").classList.toggle("oculto", m !== "reescribir");
+  if (m !== "reescribir" && vista === "cambios") aplicarVista("texto");
+  try { localStorage.setItem("llm-modo", m); } catch (e) {}
+}
+function aplicarVista(v) {
+  vista = v;
+  document.querySelectorAll("#pestanas button").forEach(b => b.classList.toggle("activo", b.dataset.vista === v));
+  pintar();
+}
+function pintar() {
+  const caja = $("#salida");
+  const texto = generando ? enCurso : resultado?.texto;
+  if (texto == null) return;
+  let html;
+  if (vista === "plano") html = `<pre style="white-space:pre-wrap;font:13.5px/1.6 ui-monospace,Menlo,monospace;margin:0">${esc(texto)}</pre>`;
+  else if (vista === "cambios" && !generando) {
+    const borr = resultado?.entrada?.borrador || "";
+    const d = borr ? diferencias(borr, texto) : null;
+    html = d ? `<div class="leyenda"><ins>verde</ins> = lo que agregó o cambió el modelo · <del>tachado</del> = lo que quitó del borrador</div>${d}`
+             : `<div class="vacio">No hay borrador con el cual comparar.</div>`;
+  } else html = markdown(texto);
+  const abajo = caja.scrollTop + caja.clientHeight >= caja.scrollHeight - 40;
+  caja.innerHTML = `<div class="hoja${generando ? " cursor" : ""}">${html}</div>`;
+  if (generando && abajo) caja.scrollTop = caja.scrollHeight;
+}
+function pintarStats(s) {
+  if (!s) { $("#stats").innerHTML = ""; return; }
+  const partes = [`Modelo: <b>${s.modelo}</b>`, `<b>${s.palabras}</b> palabras`];
+  if (s.parecido != null) partes.push(`En común con el borrador: <b>${num(s.parecido)}</b> <span title="Secuencia de palabras en común (0 a 1). En las pruebas, el 8B entrenado rondaba 0,82 y el sin entrenar 0,33.">ⓘ</span>`);
+  partes.push(`${num(s.tps, 1)} tokens/s`, `${num(s.segundos, 0)} s`);
+  if (s.titulo_quitado) partes.push(`Se quitó el título «${esc(s.titulo_quitado)}» que agregó el modelo`);
+  if (s.detenido) partes.push("<b>Detenido antes de terminar</b>");
+  $("#stats").innerHTML = partes.map(p => `<span>${p}</span>`).join("");
+}
+function aviso(msg) { $("#avisos").innerHTML = msg ? `<div class="aviso">${msg}</div>` : ""; }
+function ponerEstado(txt, tipo) { $("#estado").textContent = txt; $("#punto").className = "punto " + (tipo || ""); }
+function botones() {
+  $("#btnGenerar").classList.toggle("oculto", generando);
+  $("#btnDetener").classList.toggle("oculto", !generando);
+  $("#btnCopiar").disabled = $("#btnGuardar").disabled = generando || !resultado?.texto;
+}
+function entradaActual() {
+  return { modo, titulo: $("#titulo").value.trim(), subtitulo: $("#subtitulo").value.trim(), largo: $("#largo").value,
+           borrador: $("#borrador").value, ficha: $("#ficha").value,
+           temperatura: parseFloat($("#temperatura").value), sin_entrenar: $("#sinEntrenar").checked };
+}
+function cargarEntrada(e) {
+  aplicarModo(e.modo || "reescribir");
+  for (const k of ["titulo", "subtitulo", "largo", "borrador", "ficha"]) $("#" + k).value = e[k] || "";
+  if (e.temperatura) { $("#temperatura").value = e.temperatura; $("#valTemp").textContent = num(e.temperatura); }
+  $("#sinEntrenar").checked = !!e.sin_entrenar;
+  $("#cuentaBorrador").textContent = contar($("#borrador").value) + " palabras";
+}
+
+// ---------- generar ----------
+async function generar() {
+  const e = entradaActual();
+  if (!e.titulo) { $("#titulo").focus(); return toast("Escribe el nombre del juego"); }
+  if (modo === "reescribir" && contar(e.borrador) < 30) { $("#borrador").focus(); return toast("Pega un borrador (al menos unas frases)"); }
+  if (modo === "ficha" && contar(e.ficha) < 5) { $("#ficha").focus(); return toast("Completa la ficha del juego"); }
+  generando = true; enCurso = ""; resultado = { entrada: e }; aviso(""); pintarStats(null);
+  if (vista === "cambios") vista = "texto", document.querySelectorAll("#pestanas button").forEach(b => b.classList.toggle("activo", b.dataset.vista === "texto"));
+  $("#salida").innerHTML = `<div class="hoja cursor"></div>`; botones();
+  try {
+    const r = await fetch("/api/generar", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(e) });
+    if (!r.ok) throw new Error((await r.json()).error || r.statusText);
+    const lector = r.body.getReader(), dec = new TextDecoder(); let resto = "", t0 = 0;
+    for (;;) {
+      const { value, done } = await lector.read(); if (done) break;
+      resto += dec.decode(value, { stream: true });
+      const lineas = resto.split("\n"); resto = lineas.pop();
+      for (const l of lineas) {
+        if (!l) continue; const ev = JSON.parse(l);
+        if (ev.t === "estado") ponerEstado(ev.v, ev.v.startsWith("Listo") ? "listo" : "trabajando");
+        else if (ev.t === "texto") { enCurso += ev.v; const ahora = performance.now(); if (ahora - t0 > 60) { pintar(); t0 = ahora; } }
+        else if (ev.t === "progreso") ponerEstado(`Escribiendo… ${ev.tokens} tokens · ${num(ev.tps, 1)} tokens/s`, "trabajando");
+        else if (ev.t === "aviso") aviso(esc(ev.v));
+        else if (ev.t === "error") throw new Error(ev.v);
+        else if (ev.t === "fin") { resultado.texto = ev.texto; resultado.stats = ev; }
+      }
+    }
+  } catch (err) {
+    aviso("No se pudo generar: " + esc(err.message));
+    if (!resultado.texto && enCurso) resultado.texto = enCurso;
+  }
+  generando = false; botones(); pintar(); pintarStats(resultado.stats); actualizarInfo();
+}
+
+// ---------- historial ----------
+async function abrirHistorial() {
+  const items = await (await fetch("/api/historial")).json();
+  $("#listaHistorial").innerHTML = items.length ? items.map(i =>
+    `<button class="item" data-id="${esc(i.id)}"><div class="t">${esc(i.titulo || "(sin título)")}</div>
+     <div class="m">${esc(NOMBRE_MODO[i.modo] || i.modo)} · ${esc(i.modelo)} · ${i.palabras} palabras · ${esc((i.fecha || "").replace("T", " "))}</div></button>`).join("")
+    : `<div class="vacio" style="margin:40px">Todavía no guardas ningún texto.</div>`;
+  $("#dlgHistorial").showModal();
+}
+$("#listaHistorial").addEventListener("click", async ev => {
+  const b = ev.target.closest(".item"); if (!b) return;
+  const d = await (await fetch("/api/historial/" + encodeURIComponent(b.dataset.id))).json();
+  cargarEntrada(d.entrada || d); resultado = { texto: d.texto, stats: d.stats, entrada: d.entrada || d };
+  $("#dlgHistorial").close(); aviso(""); pintar(); pintarStats(d.stats); botones();
+});
+
+// ---------- estado del servidor ----------
+async function actualizarInfo() {
+  try {
+    info = await (await fetch("/api/info")).json();
+    if (!generando) ponerEstado(info.estado + (info.falso ? " (modo de prueba)" : ""), info.estado.startsWith("Listo") ? "listo" : info.estado.startsWith("Error") ? "" : "trabajando");
+    aplicarModo(modo);
+    if (!generando && !info.estado.startsWith("Listo") && !info.estado.startsWith("Sin")) setTimeout(actualizarInfo, 1500);
+  } catch (e) { ponerEstado("App cerrada. Ábrela de nuevo con 9_app.command", ""); }
+}
+
+// ---------- eventos ----------
+document.querySelectorAll("#modos button").forEach(b => b.onclick = () => aplicarModo(b.dataset.modo));
+document.querySelectorAll("#pestanas button").forEach(b => b.onclick = () => aplicarVista(b.dataset.vista));
+$("#temperatura").oninput = e => $("#valTemp").textContent = num(parseFloat(e.target.value));
+$("#borrador").oninput = e => $("#cuentaBorrador").textContent = contar(e.target.value) + " palabras";
+$("#btnGenerar").onclick = generar;
+$("#btnDetener").onclick = () => fetch("/api/detener", { method: "POST" });
+$("#btnCopiar").onclick = async () => { await navigator.clipboard.writeText(resultado.texto); toast("Copiado (en Markdown)"); };
+$("#btnGuardar").onclick = async () => {
+  const r = await (await fetch("/api/guardar", { method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...resultado.entrada, entrada: resultado.entrada, texto: resultado.texto, stats: resultado.stats }) })).json();
+  toast(`Guardado en resultados/app/${r.id}.md`);
+};
+$("#btnHistorial").onclick = abrirHistorial;
+$("#btnSalir").onclick = async () => {
+  if (generando && !confirm("Hay un texto generándose. ¿Salir igual?")) return;
+  await fetch("/api/salir", { method: "POST" }).catch(() => {});
+  document.body.innerHTML = `<div class="vacio"><b>La app se cerró</b>El modelo ya no ocupa memoria. Puedes cerrar esta pestaña.<br>Para volver a abrirla: doble clic en <i>9_app.command</i>.</div>`;
+};
+document.addEventListener("keydown", e => { if ((e.metaKey || e.ctrlKey) && e.key === "Enter" && !generando) generar(); });
+
+try { const m = localStorage.getItem("llm-modo"); if (m && NOMBRE_MODO[m]) modo = m; } catch (e) {}
+aplicarModo(modo); actualizarInfo();
+</script>
+</body>
+</html>

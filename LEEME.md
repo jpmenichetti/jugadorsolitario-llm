@@ -91,3 +91,34 @@ El modelo recibe un borrador escrito en estilo neutro y lo reescribe como si fue
 3. `bash 4_generar.sh transferencia-uniforme 8b`: reescribe los 8 borradores de prueba.
 4. `bash 5_comparar.sh transferencia`: informe en el navegador.
 Los borradores neutros están en `datos/neutros.json` y la configuración en `config/transferencia.yaml`.
+
+## App con interfaz gráfica
+Para usar los modelos entrenados sin la Terminal: **doble clic en `9_app.command`** (en Finder). Se abre una ventana de Terminal que hay que dejar abierta y la app aparece en tu navegador (`http://127.0.0.1:8765`). Todo corre en tu Mac, sin internet.
+
+- **Reescribir borrador** (8B de la fase 3): pegas un borrador neutro y lo reescribe con tu voz. La pestaña *Cambios vs. borrador* marca en verde lo que agregó y tacha lo que quitó, y abajo aparece cuánto tiene en común con el borrador.
+- **Desde ficha** (8B de la fase 2b) y **Solo título** (4B de la fase 1), para comparar fases.
+- En *Ajustes*: temperatura y la opción **modelo sin entrenar**, para ver el antes y el después con la misma entrada.
+- **Guardar** deja el texto en `resultados/app/` (un `.md` con el artículo y un `.json` con la entrada y los ajustes). *Historial* los vuelve a abrir.
+- **Salir** cierra la app y libera la memoria del modelo. Atajo: ⌘ + Enter para generar.
+
+La primera generación tarda unos segundos extra porque carga el modelo; cambiar de modo carga otro modelo. Si macOS no deja abrir el archivo, haz clic derecho → *Abrir*, o corre `bash 9_app.command` en la Terminal.
+
+## Usar el modelo en LM Studio
+LM Studio es una app de chat para modelos locales. No carga adaptadores por separado, así que `10_exportar_lmstudio.sh` **fusiona** el adaptador con el modelo base y deja el resultado (~5 GB) en la carpeta de modelos de LM Studio.
+
+1. Descarga LM Studio desde lmstudio.ai, arrástralo a Aplicaciones y ábrelo una vez (puedes saltarte la descarga del modelo que sugiere al inicio).
+2. En la Terminal, dentro de esta carpeta: `bash 10_exportar_lmstudio.sh` (unos minutos). Al terminar, deja en el portapapeles las instrucciones de sistema del modelo.
+3. En LM Studio, abre el selector de modelos (arriba, o ⌘ + L) y elige **qwen3-8b-transferencia-uniforme-mlx**. Si ofrece ajustes de carga, sube el largo de contexto (*Context Length*) a 8192.
+4. En la barra lateral de configuración del chat:
+   - **System Prompt:** pega (⌘ + V) lo que copió el script.
+   - **Temperature** 0,6 · **Top P** 0,9 · **Min P** 0,05 · **Repeat Penalty** 1,1 (los mismos valores de `generar.py`).
+   - Guarda todo como preset, por ejemplo «Jugador Solitario – reescribir», para no repetirlo.
+5. Escribe cada pedido con el mismo formato del entrenamiento:
+   ```
+   Reescribe con tu estilo este borrador sobre «Nombre del juego»:
+
+   (pega aquí el borrador neutro)
+   ```
+6. Si la respuesta empieza con un bloque de "pensamiento" (`<think>`), agrega `/no_think` al final del mensaje.
+
+Otros adaptadores: `bash 10_exportar_lmstudio.sh fichas-largo-uniforme 8b`. Si cambiaste la carpeta de modelos de LM Studio, pásala como tercer argumento.

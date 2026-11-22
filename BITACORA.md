@@ -535,3 +535,18 @@ Los dos tocan poco el borrador, y el modelo entrenado cambia algo más que Claud
 - **Verificación (7 cambios):** quitar el título, corregir la frase del newsletter, aclarar el sujeto ("el modelo inventaba"), "nos" → "me", dos comas y los enlaces (newsletter e informe). Se quitaron las cursivas de Markdown, porque LinkedIn no las muestra.
 - **Pendiente:** el repositorio es privado. Para que el enlace al informe funcione, hay que hacerlo público o publicar el informe en un Gist.
 - **Publicación del informe:** se publicó en un Gist (https://gist.github.com/jpmenichetti/0ac92541115b9ba0b6dd5370a6c798a3) a partir de `INFORME_GIST.md`, una versión sin las referencias al repositorio privado. `RESUMEN.md` enlaza a ese Gist y no al newsletter, porque LinkedIn admite una sola URL por publicación.
+
+## 2026-11-22: App con interfaz gráfica
+
+- **`9_app.command` + `app/`:** app local que se abre con doble clic y se usa en el navegador. Un servidor en Python (`app/servidor.py`, solo biblioteca estándar + `mlx_lm`, sin dependencias nuevas) escucha en `127.0.0.1:8765` y la interfaz está en `app/index.html`.
+- **Modos:** reescribir borrador (8B transferencia, por defecto y precargado al abrir), desde ficha (8B fichas-largo) y solo título (4B uniforme). Cada uno usa las mismas instrucciones de sistema con que se entrenó. Opción para usar el modelo base sin entrenar.
+- **Generación:** mismos parámetros que `generar.py` (temperatura 0,6 por defecto, top-p 0,9, min-p 0,05, penalización de repetición 1,1 en 256 tokens, sin modo razonamiento), pero en streaming: el texto aparece a medida que se escribe y se puede detener.
+- **Ayudas para evaluar:** vista de cambios palabra a palabra contra el borrador, medida de "en común con el borrador" (la misma de la fase 3) y retiro automático del título "# Nombre" que agrega el modelo.
+- **Diseño:** un único hilo hace todo el trabajo con MLX y mantiene un solo modelo en memoria; usa la copia local del modelo base, así que funciona sin internet.
+
+## 2026-11-22: Exportación a LM Studio
+
+- **`10_exportar_lmstudio.sh`:** fusiona el adaptador con su modelo base (`mlx_lm.fuse`, manteniendo la cuantización de 4 bits) y lo guarda en `~/.lmstudio/models/jugador-solitario/qwen3-8b-transferencia-uniforme-mlx/`.
+- **Modo razonamiento:** en la copia fusionada se modifica la plantilla de chat para que Qwen3 responda siempre sin razonar, como `enable_thinking=False` en el entrenamiento y en la app.
+- **Otras herramientas evaluadas:** Ollama necesitaría GGUF, y el exportador GGUF de `mlx_lm` no acepta Qwen3 (solo Llama/Mistral), así que habría que convertirlo con llama.cpp. `mlx_lm.server --adapter-path` sirve para conectar el modelo a cualquier cliente compatible con OpenAI.
+- **Limitación:** en LM Studio el formato del pedido («Reescribe con tu estilo este borrador sobre «X»:») hay que escribirlo a mano, y no hay vista de cambios ni comparación con el modelo sin entrenar; para eso sigue estando `9_app.command`.
