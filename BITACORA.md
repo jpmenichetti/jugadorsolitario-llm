@@ -242,3 +242,68 @@ Entrenamiento: 60 iteraciones, Val loss 2,403 → 1,823 → 1,771 → 1,738 → 
 ## 2026-11-21: Aclaración de objetivo (Juan Pablo)
 
 El objetivo del proyecto es **aprender la mecánica, los parámetros y los resultados posibles** de los LLM personalizados, no obtener un modelo que escriba artículos publicables. No se usará para escribir en su nombre. Desde aquí, cada experimento se elige por lo que enseña, no para pulir el resultado.
+
+## 2026-11-21: Experimento futuro acordado: transferencia de estilo
+
+Se retoma después de terminar el recorrido actual (8B, hiperparámetros, ponderado).
+
+- **Idea de Juan Pablo:** un modelo grande (Claude) investiga y escribe el contenido con referencias de internet, el modelo personalizado lo reescribe con su estilo, y Claude verifica al final que no se hayan deformado los datos.
+- **Esquema elegido: el "correcto", con reentrenamiento.** Un modelo grande reescribe cada uno de los 139 artículos en un estilo neutro, conservando el contenido. Con eso se arman pares "versión genérica → original" y se entrena un modelo específico de reescritura.
+- **La verificación:** Claude solo marca errores y hace cambios mínimos (o devuelve una lista para que el modelo personalizado corrija), para no borrar el estilo ganado. Conviene conservar las fuentes del paso 1.
+- **Preguntas a responder:** ¿se pierden o deforman datos al reescribir? ¿Cuántos errores detecta el verificador? ¿La verificación borra el estilo? ¿Pangram sigue detectando IA? Comparación adicional: Claude con ejemplos en el pedido, sin fine-tuning.
+
+## 2026-11-21: Entrenamiento 4, 8B fichas-largo-uniforme (misma configuración que el 4B)
+
+| Iteración | Val loss 4B | Val loss 8B |
+|---|---|---|
+| 1 | 2,403 | **2,110** |
+| 15 | 1,823 | 1,694 |
+| 30 | 1,771 | 1,638 |
+| 45 | 1,738 | 1,615 |
+| 60 | 1,725 | **1,599** |
+| Mejora total | 0,678 | 0,511 |
+
+- Parámetros entrenables: 19,4 M de 8.191 M (0,237%), contra 14,7 M (0,365%) en el 4B.
+- Velocidad ~40 tokens/s (aprox. la mitad del 4B); validaciones de ~110 s. Duración: ~80 minutos.
+- **Hipótesis 1 (parte más bajo): confirmada.** Antes de entrenar ya predice mejor el español del autor.
+- **Hipótesis 2 (mejora menos): confirmada.** Termina más abajo, pero el entrenamiento le aporta menos (0,51 contra 0,68), porque ya sabía más.
+- **Hipótesis 3 (sobreajusta antes): no se cumplió.** El Val loss siguió bajando hasta la iteración 60. Con el mismo learning rate y una época, el 8B no alcanzó a memorizar.
+- El adaptador final (iteración 60) es el mejor; no hay que reemplazarlo.
+
+## 2026-11-21: Generación 8B fichas-largo-uniforme
+
+| Métrica (promedio) | Original | 4B ficha + largo | 8B ficha + largo |
+|---|---|---|---|
+| Palabras | 606 | 540 | 510 |
+| Párrafos | 10,4 | 10,2 | 10,2 |
+| Palabras por oración | 22,4 | 19,0 | 19,5 |
+| Cursivas/negritas | 9,4 | 2,8 | 4,2 |
+| Riqueza de vocabulario (%) | 53,1 | 50,9 | 55,2 |
+| Vocabulario típico (por 1000) | 118 | 151 | 149 |
+
+Generación: ~5 minutos para los 8 textos.
+
+**Diferencias con el 4B:**
+- **Menos relleno:** en TOEM ya no repite tres veces los puercoespines ni la melodía; reformula la ficha en vez de enumerarla.
+- **Mejor comprensión:** en Sable entiende bien la máscara y las medallas (el 4B hablaba de "un simulacro del vehículo").
+- **Más cerca del estilo:** más cursivas en los nombres de juegos, primera persona ocasional ("por lo menos no en mi caso") y, por primera vez, la apertura "Bienvenidos…" (2 de 8).
+- **Sigue respetando el largo**, aunque tiende a quedarse algo corto (296–867 palabras para pedidos de 350–850).
+- **Persisten algunos errores:** mezcla ideas (la bocina "almacena imágenes en el catálogo de fauna"), una lógica rara ("mi única crítica es que existe una secuela") y el género del protagonista de Sable es inconsistente. La exageración del vocabulario típico se mantiene (149 contra 118).
+
+**Lectura:** duplicar el tamaño mejoró la **comprensión y la fluidez**, que es lo que el fine-tuning no podía dar, pero no eliminó los errores ni la caricatura del estilo. El salto de calidad del 8B se nota más en la lectura que en las métricas.
+
+## 2026-11-21: Búsqueda de hiperparámetros (preparación)
+
+Script: `8_busqueda_hiperparametros.sh` (`herramientas/busqueda.py`). Corre de noche, unas 3,5 a 4 horas.
+
+- **Modelo y datos:** Qwen3-4B con fichas + largo, 60 iteraciones (lo mismo que el entrenamiento 3, que sirve de referencia: Val loss 1,725).
+- **Diseño:** se cambia **un parámetro a la vez** respecto de la base, para atribuir cada efecto:
+
+| Corrida | Cambio |
+|---|---|
+| lr-2e-5 / lr-1e-4 | learning rate más bajo / más alto (base 5e-5) |
+| rank-8 / rank-32 | adaptador más chico / más grande (base 16) |
+| capas-8 / capas-todas | adaptar 8 o las 36 capas (base 16) |
+
+- **Medida:** el mejor Val loss y en qué iteración ocurre. Solo se guarda el adaptador final, para ahorrar disco.
+- Resultados en `resultados/hiperparametros.md`, que se actualiza tras cada corrida. Si se interrumpe, se retoma sin repetir lo hecho.
